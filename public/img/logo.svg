@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160">
+  <defs>
+    <!-- March Madness official palette -->
+    <linearGradient id="navy-deep" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d2137"/>
+      <stop offset="100%" style="stop-color:#091f2c"/>
+    </linearGradient>
+    <linearGradient id="crimson" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#da1f26"/>
+      <stop offset="50%" style="stop-color:#ff2d35"/>
+      <stop offset="100%" style="stop-color:#da1f26"/>
+    </linearGradient>
+    <linearGradient id="ball-hot" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8c42"/>
+      <stop offset="40%" style="stop-color:#ff6b35"/>
+      <stop offset="100%" style="stop-color:#e84310"/>
+    </linearGradient>
+    <linearGradient id="chrome" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="50%" style="stop-color:#e0e6ed"/>
+      <stop offset="100%" style="stop-color:#b8c5d6"/>
+    </linearGradient>
+    <linearGradient id="gold-bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f5c842; stop-opacity:0"/>
+      <stop offset="20%" style="stop-color:#f5c842"/>
+      <stop offset="80%" style="stop-color:#e8a825"/>
+      <stop offset="100%" style="stop-color:#e8a825; stop-opacity:0"/>
+    </linearGradient>
+    <filter id="glow-red">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#da1f26" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="drop">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000050"/>
+    </filter>
+    <filter id="drop-sm">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000030"/>
+    </filter>
+    <clipPath id="ball-clip"><circle cx="0" cy="0" r="48"/></clipPath>
+  </defs>
+
+  <!-- Background shield shape -->
+  <path d="M10,8 H550 Q558,8 558,16 V144 Q558,152 550,152 H10 Q2,152 2,144 V16 Q2,8 10,8 Z" fill="url(#navy-deep)" rx="12" filter="url(#drop)"/>
+
+  <!-- Crimson diagonal slash accents -->
+  <polygon points="0,0 90,0 50,160 0,160" fill="#da1f26" opacity="0.12"/>
+  <polygon points="480,0 560,0 560,160 520,160" fill="#da1f26" opacity="0.08"/>
+
+  <!-- Court line pattern (subtle) -->
+  <g opacity="0.06" stroke="white" fill="none" stroke-width="1.5">
+    <circle cx="280" cy="80" r="60"/>
+    <circle cx="280" cy="80" r="20"/>
+    <line x1="280" y1="8" x2="280" y2="152"/>
+  </g>
+
+  <!-- Basketball -->
+  <g transform="translate(72, 80)" filter="url(#drop)">
+    <circle cx="0" cy="0" r="48" fill="url(#ball-hot)"/>
+    <g clip-path="url(#ball-clip)" stroke="#b33500" stroke-opacity="0.45" fill="none">
+      <path d="M-48,0 C-24,-22 24,-22 48,0" stroke-width="2.5"/>
+      <path d="M-48,0 C-24,22 24,22 48,0" stroke-width="2.5"/>
+      <line x1="0" y1="-48" x2="0" y2="48" stroke-width="2.5"/>
+      <path d="M-34,-36 C-14,-6 -14,6 -34,36" stroke-width="2"/>
+      <path d="M34,-36 C14,-6 14,6 34,36" stroke-width="2"/>
+    </g>
+    <!-- Shine -->
+    <ellipse cx="-12" cy="-16" rx="28" ry="24" fill="white" opacity="0.15"/>
+    <circle cx="0" cy="0" r="47" fill="none" stroke="#ffb87a" stroke-width="0.8" opacity="0.4"/>
+  </g>
+
+  <!-- DRAFT — chrome text -->
+  <text x="138" y="72" font-family="'Arial Black', 'Impact', 'Helvetica Neue', sans-serif" font-size="62" font-weight="900" fill="url(#chrome)" letter-spacing="5" filter="url(#drop-sm)">DRAFT</text>
+
+  <!-- MADNESS — crimson text with glow -->
+  <text x="138" y="128" font-family="'Arial Black', 'Impact', 'Helvetica Neue', sans-serif" font-size="52" font-weight="900" fill="url(#crimson)" letter-spacing="7" filter="url(#glow-red)">MADNESS</text>
+
+  <!-- Gold accent bar -->
+  <rect x="138" y="78" width="310" height="3.5" rx="1.75" fill="url(#gold-bar)"/>
+
+  <!-- Bracket graphic -->
+  <g transform="translate(472, 28)" stroke="white" stroke-width="2" opacity="0.25" fill="none" stroke-linecap="round">
+    <path d="M0,0 H16 V14 H28"/>
+    <path d="M0,28 H16 V14"/>
+    <path d="M0,68 H16 V82 H28"/>
+    <path d="M0,96 H16 V82"/>
+    <path d="M28,14 V48 H28"/>
+    <path d="M28,82 V48"/>
+    <path d="M28,48 H44"/>
+    <!-- Trophy -->
+    <g transform="translate(52, 40)" stroke="#f5c842" opacity="0.7">
+      <path d="M-6,-10 Q-8,-10 -8,-6 V-2 Q-8,6 0,8 Q8,6 8,-2 V-6 Q8,-10 6,-10 Z" stroke-width="1.8" fill="#f5c84215"/>
+      <line x1="0" y1="8" x2="0" y2="14" stroke-width="1.8"/>
+      <line x1="-5" y1="14" x2="5" y2="14" stroke-width="2"/>
+      <!-- Handles -->
+      <path d="M-8,-4 Q-12,-4 -12,0 Q-12,3 -8,3" stroke-width="1.2" fill="none"/>
+      <path d="M8,-4 Q12,-4 12,0 Q12,3 8,3" stroke-width="1.2" fill="none"/>
+    </g>
+  </g>
+
+  <!-- "2026" small year badge -->
+  <rect x="470" y="112" width="46" height="20" rx="4" fill="#da1f26" opacity="0.9"/>
+  <text x="493" y="127" text-anchor="middle" font-family="'Arial Black', sans-serif" font-size="12" font-weight="900" fill="white" letter-spacing="1">2026</text>
+
+  <!-- Top accent line -->
+  <rect x="2" y="8" width="556" height="3" rx="1.5" fill="url(#crimson)" opacity="0.8"/>
+</svg>

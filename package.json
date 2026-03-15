@@ -1,0 +1,21 @@
+{
+  "name": "draft-madness",
+  "version": "1.0.0",
+  "description": "March Madness draft game with snake draft, live scoring, and scenarios",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/",
+    "postinstall": "echo 'Setup complete'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "uuid": "^10.0.0"
+  }
+}

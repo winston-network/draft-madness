@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d2137"/>
+      <stop offset="100%" style="stop-color:#091f2c"/>
+    </linearGradient>
+    <linearGradient id="ball" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8c42"/>
+      <stop offset="40%" style="stop-color:#ff6b35"/>
+      <stop offset="100%" style="stop-color:#e84310"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <rect x="0" y="0" width="64" height="3" rx="1.5" fill="#da1f26"/>
+  <circle cx="32" cy="30" r="21" fill="url(#ball)"/>
+  <g stroke="#b3350066" fill="none" stroke-width="1.8">
+    <path d="M11,30 C21,18 43,18 53,30"/>
+    <path d="M11,30 C21,42 43,42 53,30"/>
+    <line x1="32" y1="9" x2="32" y2="51"/>
+  </g>
+  <ellipse cx="26" cy="23" r="10" ry="8" fill="white" opacity="0.12"/>
+  <text x="32" y="58" text-anchor="middle" font-family="Arial Black,Impact,sans-serif" font-size="10" font-weight="900" fill="#da1f26" letter-spacing="1">DRAFT</text>
+</svg>
