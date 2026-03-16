@@ -399,7 +399,7 @@ function renderAvailableTeams(state) {
       const iOwnIt = myTeams.has(team.id);
       let itemClass, indicator;
 
-      if (picksLeft <= 0 || iOwnIt) {
+      if (picksLeft <= 0) {
         itemClass = 'unavailable';
         indicator = '';
       } else if (picksLeft === 1) {
