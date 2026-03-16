@@ -277,8 +277,9 @@ function renderDraftGrid(state) {
     }
   }
 
-  // Column headers (contestant names)
+  // Column headers (spacer for round label + contestant names)
   let html = '<div class="draft-columns-header">';
+  html += '<div class="draft-col-header">Rd</div>';
   for (let i = 1; i <= 8; i++) {
     const c = contestants.find((c) => c.draft_position === i);
     html += `<div class="draft-col-header">${c ? c.name : `Pos ${i}`}</div>`;

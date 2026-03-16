@@ -544,12 +544,48 @@ input:focus {
    DRAFT BOARD — Round-based layout
    ═══════════════════════════════════════════ */
 
-/* Draft layout - two columns */
+/* Basketball court background for draft page */
+#tab-draft {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(9,31,44,0.03) 0%, transparent 70%),
+    var(--bg);
+  position: relative;
+}
+
+#tab-draft::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(9,31,44,0.04);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+#tab-draft::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(9,31,44,0.03);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Draft layout - two columns, fill viewport */
 .draft-layout {
   display: grid;
   grid-template-columns: 1fr 420px;
-  gap: 1rem;
+  gap: 0.75rem;
   height: calc(100vh - 140px);
+  position: relative;
+  z-index: 1;
 }
 
 .draft-main {
@@ -569,89 +605,105 @@ input:focus {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  gap: 2px;
+}
+
+/* Each round is a row: vertical label + 8 pick cells */
+.draft-round {
+  display: flex;
+  min-height: 0;
+}
+
+/* Round headers — vertical text on left side */
+.round-header {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.round-picks {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  flex: 1;
+  min-width: 0;
 }
 
 /* Current round - BIG and dominant */
 .draft-round.current {
   flex: 3;
-  min-height: 0;
 }
 
 .draft-round.current .round-header {
-  background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+  background: linear-gradient(180deg, var(--crimson), var(--crimson-dark));
   color: white;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px 8px 0 0;
+  width: 22px;
+  border-radius: 6px 0 0 6px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .draft-round.current .round-picks {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
-  flex: 1;
-  padding: 6px;
+  gap: 3px;
+  padding: 4px;
   background: rgba(218,31,38,0.04);
   border: 2px solid var(--crimson);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
 }
 
 /* Previous round - readable but smaller */
 .draft-round.previous {
-  flex: 1.5;
-  min-height: 0;
+  flex: 1;
   opacity: 0.85;
 }
 
 .draft-round.previous .round-header {
   background: var(--primary);
   color: white;
-  font-size: 0.75rem;
+  font-size: 0.55rem;
   font-weight: 700;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px 6px 0 0;
+  width: 16px;
+  border-radius: 4px 0 0 4px;
 }
 
 .draft-round.previous .round-picks {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
-  padding: 3px;
+  gap: 1px;
+  padding: 2px;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 6px 6px;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
 }
 
 /* Future rounds - minimal */
 .draft-round.future {
   flex: 0.4;
-  min-height: 0;
   opacity: 0.4;
 }
 
 .draft-round.future .round-header {
   background: var(--bg-subtle);
   color: var(--text-muted);
-  font-size: 0.65rem;
+  font-size: 0.5rem;
   font-weight: 600;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px 4px 0 0;
+  width: 14px;
+  border-radius: 3px 0 0 3px;
+  border: 1px solid var(--border);
+  border-right: none;
 }
 
 .draft-round.future .round-picks {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
   gap: 1px;
-  padding: 2px;
+  padding: 1px;
   background: var(--border-light);
   border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 4px 4px;
+  border-left: none;
+  border-radius: 0 3px 3px 0;
 }
 
 /* Pick cells */
@@ -660,12 +712,12 @@ input:focus {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.3rem;
-  border-radius: 4px;
+  padding: 2px;
+  border-radius: 3px;
   text-align: center;
   min-height: 0;
   overflow: hidden;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .pick-cell.empty {
@@ -686,14 +738,13 @@ input:focus {
 }
 
 .pick-cell .pick-logo {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
-  margin-bottom: 2px;
 }
 
 .pick-cell .pick-team {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   line-height: 1.1;
   overflow: hidden;
@@ -703,50 +754,57 @@ input:focus {
 }
 
 .pick-cell .pick-seed {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   color: var(--text-muted);
   font-weight: 700;
 }
 
 /* Bigger cells in current round */
-.draft-round.current .pick-cell .pick-logo { width: 32px; height: 32px; }
-.draft-round.current .pick-cell .pick-team { font-size: 0.78rem; }
-.draft-round.current .pick-cell .pick-seed { font-size: 0.65rem; }
+.draft-round.current .pick-cell .pick-logo { width: 28px; height: 28px; }
+.draft-round.current .pick-cell .pick-team { font-size: 0.72rem; }
+.draft-round.current .pick-cell .pick-seed { font-size: 0.58rem; }
 
 /* Smaller cells in previous */
-.draft-round.previous .pick-cell .pick-logo { width: 18px; height: 18px; }
-.draft-round.previous .pick-cell .pick-team { font-size: 0.6rem; }
+.draft-round.previous .pick-cell .pick-logo { width: 14px; height: 14px; }
+.draft-round.previous .pick-cell .pick-team { font-size: 0.52rem; }
+.draft-round.previous .pick-cell .pick-seed { display: none; }
 
 /* Tiny cells in future */
-.draft-round.future .pick-cell { padding: 0.15rem; }
+.draft-round.future .pick-cell { padding: 1px; }
 .draft-round.future .pick-cell .pick-logo { display: none; }
-.draft-round.future .pick-cell .pick-team { font-size: 0.5rem; }
+.draft-round.future .pick-cell .pick-team { font-size: 0.45rem; }
 .draft-round.future .pick-cell .pick-seed { display: none; }
 
 /* Column headers */
 .draft-columns-header {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: 22px repeat(8, 1fr);
   gap: 2px;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
+  flex-shrink: 0;
 }
 
 .draft-col-header {
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-secondary);
-  padding: 0.3rem;
+  padding: 0.25rem 0.1rem;
   background: var(--bg-subtle);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.draft-col-header:first-child {
+  font-size: 0.5rem;
+  color: var(--text-muted);
+}
+
 @keyframes currentPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,53,0.35); }
-  50% { box-shadow: 0 0 0 8px rgba(255,107,53,0); }
+  50% { box-shadow: 0 0 0 6px rgba(255,107,53,0); }
 }
 
 /* ═══════════════════════════════════════════
@@ -754,8 +812,16 @@ input:focus {
    ═══════════════════════════════════════════ */
 .draft-sidebar {
   overflow: hidden;
-  max-height: calc(100vh - 140px);
+  height: calc(100vh - 140px);
 }
+
+.draft-sidebar > .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.draft-sidebar > .card > h2 { flex-shrink: 0; }
 
 .teams-list {
   height: 100%;
