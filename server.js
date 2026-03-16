@@ -10,6 +10,15 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors({ origin: true }));
 app.use(express.json());
+
+// Cache-bust: replace __BUILD__ in HTML with startup timestamp
+const fs = require('fs');
+const BUILD_ID = Date.now().toString(36);
+app.get('/', (req, res) => {
+  const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+  res.type('html').send(html.replace(/__BUILD__/g, BUILD_ID));
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
