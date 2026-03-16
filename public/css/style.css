@@ -373,6 +373,7 @@ input:focus {
   text-align: center;
   padding: 2rem 1.5rem;
   background:
+    url('/img/court-pattern.svg') repeat,
     radial-gradient(ellipse at 50% 30%, rgba(244,121,32,0.08) 0%, transparent 60%),
     radial-gradient(ellipse at 20% 80%, rgba(36,58,94,0.3) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 80%, rgba(36,58,94,0.3) 0%, transparent 50%),
@@ -511,6 +512,7 @@ input:focus {
    ═══════════════════════════════════════════ */
 #game-page {
   background:
+    url('/img/court-pattern.svg') repeat,
     radial-gradient(ellipse at 50% 0%, rgba(244,121,32,0.06) 0%, transparent 50%),
     radial-gradient(ellipse at 0% 50%, rgba(36,58,94,0.2) 0%, transparent 40%),
     radial-gradient(ellipse at 100% 50%, rgba(36,58,94,0.2) 0%, transparent 40%),
