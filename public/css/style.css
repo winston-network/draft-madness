@@ -880,7 +880,7 @@ input:focus {
 
 .teams-region-header.East { background: var(--east); }
 .teams-region-header.West { background: var(--west); }
-.teams-region-header.South { background: var(--south); }
+.teams-region-header.South { background: var(--orange); }
 .teams-region-header.Midwest { background: var(--midwest); }
 
 /* Team rows */
@@ -890,11 +890,11 @@ input:focus {
   gap: 4px;
   padding: 2px 4px;
   border-radius: 3px;
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.12s;
-  min-height: 22px;
+  min-height: 26px;
   color: var(--text);
 }
 
@@ -905,7 +905,7 @@ input:focus {
 
 .team-mini .tm-seed {
   font-weight: 900;
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   color: white;
   background: var(--primary-light);
   border-radius: 3px;
@@ -924,16 +924,8 @@ input:focus {
   font-weight: 700;
 }
 
-/* Availability dots */
-.avail-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.avail-dot.dot-2 { background: var(--success); box-shadow: 0 0 4px rgba(16,185,129,0.4); }
-.avail-dot.dot-1 { background: var(--warning); box-shadow: 0 0 4px rgba(245,158,11,0.4); }
+/* Availability dots — hidden */
+.avail-dot { display: none; }
 
 /* 2 picks available — green tint */
 .team-mini.picks-2 {
@@ -953,9 +945,9 @@ input:focus {
 .team-mini.picks-1 .tm-seed { background: var(--warning); color: #78350f; }
 .team-mini.picks-1 .tm-name { color: #fbbf24; }
 
-/* Unavailable — faded with subtle strikethrough */
+/* Unavailable — faded with strikethrough */
 .team-mini.unavailable {
-  opacity: 0.35;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -1378,8 +1370,8 @@ td.round-pending {
   .draft-layout {
     grid-template-columns: 1fr 300px;
   }
-  .team-mini { font-size: 0.65rem; }
-  .team-mini .tm-seed { font-size: 0.58rem; min-width: 14px; }
+  .team-mini { font-size: 0.78rem; }
+  .team-mini .tm-seed { font-size: 0.65rem; min-width: 14px; }
 }
 
 @media (max-width: 900px) {
