@@ -1,6 +1,6 @@
 /**
  * Draft pick timer service.
- * Manages countdown deadlines and auto-picks when time expires.
+ * Manages countdown deadlines, pause/resume, and auto-picks when time expires.
  */
 
 const { getCurrentPick, MAX_DRAFTS_PER_TEAM } = require('./draft-engine');
@@ -8,6 +8,7 @@ const { getCurrentPick, MAX_DRAFTS_PER_TEAM } = require('./draft-engine');
 /**
  * Set the deadline for the current pick in a game.
  * Deadline = now + pick_timer seconds.
+ * Also clears any paused state.
  */
 function startPickTimer(db, gameCode) {
   const game = db.prepare('SELECT * FROM games WHERE id = ?').get(gameCode);
@@ -16,23 +17,68 @@ function startPickTimer(db, gameCode) {
   const pickTimer = game.pick_timer || 180;
   const deadline = new Date(Date.now() + pickTimer * 1000).toISOString();
 
-  db.prepare('UPDATE games SET current_pick_deadline = ? WHERE id = ?').run(deadline, gameCode);
+  db.prepare('UPDATE games SET current_pick_deadline = ?, paused_remaining = NULL WHERE id = ?').run(deadline, gameCode);
 }
 
 /**
  * Clear the pick deadline (e.g. when draft completes).
  */
 function clearPickTimer(db, gameCode) {
-  db.prepare('UPDATE games SET current_pick_deadline = NULL WHERE id = ?').run(gameCode);
+  db.prepare('UPDATE games SET current_pick_deadline = NULL, paused_remaining = NULL WHERE id = ?').run(gameCode);
+}
+
+/**
+ * Pause the draft timer. Saves remaining seconds and clears the deadline.
+ * Returns { remaining } on success, or null if not pausable.
+ */
+function pauseTimer(db, gameCode) {
+  const game = db.prepare('SELECT current_pick_deadline, paused_remaining FROM games WHERE id = ?').get(gameCode);
+  if (!game || !game.current_pick_deadline || game.paused_remaining != null) {
+    return null; // no deadline to pause, or already paused
+  }
+
+  const deadline = new Date(game.current_pick_deadline).getTime();
+  const remaining = Math.max(1, Math.ceil((deadline - Date.now()) / 1000));
+
+  db.prepare('UPDATE games SET paused_remaining = ?, current_pick_deadline = NULL WHERE id = ?').run(remaining, gameCode);
+
+  return { remaining };
+}
+
+/**
+ * Resume the draft timer. Sets a new deadline from saved remaining time.
+ * Returns { deadline, secondsRemaining } on success, or null if not paused.
+ */
+function resumeTimer(db, gameCode) {
+  const game = db.prepare('SELECT paused_remaining FROM games WHERE id = ?').get(gameCode);
+  if (!game || game.paused_remaining == null) {
+    return null; // not paused
+  }
+
+  const remaining = game.paused_remaining;
+  const deadline = new Date(Date.now() + remaining * 1000).toISOString();
+
+  db.prepare('UPDATE games SET current_pick_deadline = ?, paused_remaining = NULL WHERE id = ?').run(deadline, gameCode);
+
+  return { deadline, secondsRemaining: remaining };
 }
 
 /**
  * Get time remaining for the current pick.
- * Returns { deadline, secondsRemaining }.
+ * Returns { deadline, secondsRemaining } or paused state.
  */
 function getTimeRemaining(db, gameCode) {
-  const game = db.prepare('SELECT current_pick_deadline FROM games WHERE id = ?').get(gameCode);
-  if (!game || !game.current_pick_deadline) {
+  const game = db.prepare('SELECT current_pick_deadline, paused_remaining FROM games WHERE id = ?').get(gameCode);
+  if (!game) {
+    return { deadline: null, secondsRemaining: null };
+  }
+
+  // If paused, return paused state
+  if (game.paused_remaining != null) {
+    return { paused: true, remaining: game.paused_remaining, deadline: null, secondsRemaining: game.paused_remaining };
+  }
+
+  if (!game.current_pick_deadline) {
     return { deadline: null, secondsRemaining: null };
   }
 
@@ -48,6 +94,7 @@ function getTimeRemaining(db, gameCode) {
 /**
  * Check all active drafting games for expired pick timers.
  * When a timer expires, auto-pick a random available team for the current player.
+ * Skips games that are paused (paused_remaining IS NOT NULL).
  */
 function checkExpiredPicks(db) {
   const now = new Date().toISOString();
@@ -57,7 +104,8 @@ function checkExpiredPicks(db) {
       `SELECT * FROM games
        WHERE status = 'drafting'
          AND current_pick_deadline IS NOT NULL
-         AND current_pick_deadline <= ?`
+         AND current_pick_deadline <= ?
+         AND paused_remaining IS NULL`
     )
     .all(now);
 
@@ -124,7 +172,7 @@ function autoPickForGame(db, game) {
 
   const nextPick = getCurrentPick(newPickCount.c);
   if (nextPick.isComplete) {
-    db.prepare("UPDATE games SET status = 'active', current_pick_deadline = NULL WHERE id = ?").run(game.id);
+    db.prepare("UPDATE games SET status = 'active', current_pick_deadline = NULL, paused_remaining = NULL WHERE id = ?").run(game.id);
   } else {
     // Set timer for the next pick
     startPickTimer(db, game.id);
@@ -163,4 +211,6 @@ module.exports = {
   clearPickTimer,
   getTimeRemaining,
   checkExpiredPicks,
+  pauseTimer,
+  resumeTimer,
 };

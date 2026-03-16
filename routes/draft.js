@@ -1,12 +1,15 @@
 const express = require('express');
 const { getDb } = require('../db/database');
 const { validatePick, getCurrentPick, generateSnakeOrder } = require('../services/draft-engine');
-const { startPickTimer, getTimeRemaining } = require('../services/timer');
+const { startPickTimer, getTimeRemaining, pauseTimer, resumeTimer } = require('../services/timer');
 
 const router = express.Router();
 
 // SSE connections per game
 const sseClients = new Map();
+
+// In-flight pick guard: contestantId -> true while a pick is being processed
+const pickInProgress = new Map();
 
 function broadcastToGame(gameCode, data) {
   const clients = sseClients.get(gameCode) || [];
@@ -30,7 +33,13 @@ router.get('/:code/stream', (req, res) => {
   if (!sseClients.has(code)) sseClients.set(code, []);
   sseClients.get(code).push(res);
 
+  // SSE heartbeat every 25 seconds
+  const heartbeat = setInterval(() => {
+    try { res.write(': keep-alive\n\n'); } catch (_) { clearInterval(heartbeat); }
+  }, 25000);
+
   req.on('close', () => {
+    clearInterval(heartbeat);
     const clients = sseClients.get(code) || [];
     sseClients.set(code, clients.filter((c) => c !== res));
   });
@@ -107,51 +116,114 @@ router.post('/:code/pick', (req, res) => {
     .get(token, code);
   if (!contestant) return res.status(401).json({ error: 'Not in this game' });
 
-  const validation = validatePick(db, code, contestant.id, teamId);
-  if (!validation.valid) {
-    return res.status(400).json({ error: validation.error });
+  // Double-click guard: reject if this contestant already has an in-flight pick
+  const pickKey = `${code}:${contestant.id}`;
+  if (pickInProgress.get(pickKey)) {
+    return res.status(409).json({ error: 'Pick already in progress' });
+  }
+  pickInProgress.set(pickKey, true);
+
+  try {
+    // Atomic: validate + insert in a single transaction
+    const makePick = db.transaction(() => {
+      const validation = validatePick(db, code, contestant.id, teamId);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+
+      // INSERT (UNIQUE constraint on game_id + pick_number is the final guard)
+      db.prepare(
+        'INSERT INTO draft_picks (game_id, contestant_id, team_id, pick_number, round) VALUES (?, ?, ?, ?, ?)'
+      ).run(code, contestant.id, teamId, validation.pickNumber, validation.round);
+
+      return validation;
+    });
+
+    let validation;
+    try {
+      validation = makePick();
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    // Check if draft is complete
+    const newPickCount = db
+      .prepare('SELECT COUNT(*) as c FROM draft_picks WHERE game_id = ?')
+      .get(code);
+
+    const nextPick = getCurrentPick(newPickCount.c);
+    if (nextPick.isComplete) {
+      db.prepare("UPDATE games SET status = 'active' WHERE id = ?").run(code);
+    }
+
+    const team = db.prepare('SELECT * FROM teams WHERE id = ?').get(teamId);
+
+    // Broadcast to all SSE clients
+    broadcastToGame(code, {
+      type: 'pick',
+      pick: {
+        contestantName: contestant.name,
+        contestantId: contestant.id,
+        teamName: team.name,
+        teamId: team.id,
+        seed: team.seed,
+        region: team.region,
+        pickNumber: validation.pickNumber,
+        round: validation.round,
+      },
+      nextPick: nextPick.isComplete ? null : nextPick,
+      draftComplete: nextPick.isComplete,
+    });
+
+    // Start timer for the next pick
+    if (!nextPick.isComplete) {
+      startPickTimer(db, code);
+    }
+
+    res.json({ success: true, pick: validation.pickNumber, team: team.name });
+  } finally {
+    pickInProgress.delete(pickKey);
+  }
+});
+
+// POST /api/draft/:code/pause - Pause the draft timer
+router.post('/:code/pause', (req, res) => {
+  const db = getDb();
+  const code = req.params.code.toUpperCase();
+
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(code);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+  if (game.status !== 'drafting') {
+    return res.status(400).json({ error: 'Draft is not active' });
   }
 
-  // Make the pick
-  db.prepare(
-    'INSERT INTO draft_picks (game_id, contestant_id, team_id, pick_number, round) VALUES (?, ?, ?, ?, ?)'
-  ).run(code, contestant.id, teamId, validation.pickNumber, validation.round);
-
-  // Check if draft is complete
-  const newPickCount = db
-    .prepare('SELECT COUNT(*) as c FROM draft_picks WHERE game_id = ?')
-    .get(code);
-
-  const nextPick = getCurrentPick(newPickCount.c);
-  if (nextPick.isComplete) {
-    db.prepare("UPDATE games SET status = 'active' WHERE id = ?").run(code);
+  const result = pauseTimer(db, code);
+  if (!result) {
+    return res.status(400).json({ error: 'Timer is not running or already paused' });
   }
 
-  const team = db.prepare('SELECT * FROM teams WHERE id = ?').get(teamId);
+  broadcastToGame(code, { type: 'pause', remaining: result.remaining });
+  res.json({ paused: true, remaining: result.remaining });
+});
 
-  // Broadcast to all SSE clients
-  broadcastToGame(code, {
-    type: 'pick',
-    pick: {
-      contestantName: contestant.name,
-      contestantId: contestant.id,
-      teamName: team.name,
-      teamId: team.id,
-      seed: team.seed,
-      region: team.region,
-      pickNumber: validation.pickNumber,
-      round: validation.round,
-    },
-    nextPick: nextPick.isComplete ? null : nextPick,
-    draftComplete: nextPick.isComplete,
-  });
+// POST /api/draft/:code/resume - Resume the draft timer
+router.post('/:code/resume', (req, res) => {
+  const db = getDb();
+  const code = req.params.code.toUpperCase();
 
-  // Start timer for the next pick
-  if (!nextPick.isComplete) {
-    startPickTimer(db, code);
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(code);
+  if (!game) return res.status(404).json({ error: 'Game not found' });
+  if (game.status !== 'drafting') {
+    return res.status(400).json({ error: 'Draft is not active' });
   }
 
-  res.json({ success: true, pick: validation.pickNumber, team: team.name });
+  const result = resumeTimer(db, code);
+  if (!result) {
+    return res.status(400).json({ error: 'Timer is not paused' });
+  }
+
+  broadcastToGame(code, { type: 'resume', deadline: result.deadline, secondsRemaining: result.secondsRemaining });
+  res.json({ paused: false, deadline: result.deadline, secondsRemaining: result.secondsRemaining });
 });
 
 // GET /api/draft/:code/timer - Get current pick timer
@@ -168,3 +240,4 @@ router.get('/:code/timer', (req, res) => {
 
 module.exports = router;
 module.exports.broadcastToGame = broadcastToGame;
+module.exports.sseClients = sseClients;

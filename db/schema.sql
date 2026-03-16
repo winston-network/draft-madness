@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS games (
   status TEXT DEFAULT 'lobby',
   pick_timer INTEGER DEFAULT 180,
   current_pick_deadline DATETIME,
+  paused_remaining INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

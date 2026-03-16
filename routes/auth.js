@@ -31,30 +31,58 @@ router.post('/join', (req, res) => {
     });
   }
 
-  // Check if game is full
-  const count = db
-    .prepare('SELECT COUNT(*) as c FROM contestants WHERE game_id = ?')
-    .get(game.id);
-
-  if (count.c >= 8) {
-    return res.status(400).json({ error: 'Game is full (8/8 contestants)' });
-  }
-
-  if (game.status !== 'lobby') {
-    return res.status(400).json({ error: 'Game has already started' });
-  }
-
+  // Atomic join: check count + status + insert inside a transaction
   const token = uuidv4();
-  const result = db
-    .prepare('INSERT INTO contestants (game_id, name, session_token) VALUES (?, ?, ?)')
-    .run(game.id, name, token);
+  const joinTransaction = db.transaction(() => {
+    const g = db.prepare('SELECT status FROM games WHERE id = ?').get(game.id);
+    if (g.status !== 'lobby') {
+      throw new Error('Game has already started');
+    }
 
-  res.json({
-    token,
-    contestantId: result.lastInsertRowid,
-    gameId: game.id,
-    gameName: game.name,
+    const count = db
+      .prepare('SELECT COUNT(*) as c FROM contestants WHERE game_id = ?')
+      .get(game.id);
+
+    if (count.c >= 8) {
+      throw new Error('Game is full (8/8 contestants)');
+    }
+
+    const result = db
+      .prepare('INSERT INTO contestants (game_id, name, session_token) VALUES (?, ?, ?)')
+      .run(game.id, name, token);
+
+    // Double-check count after insert
+    const newCount = db
+      .prepare('SELECT COUNT(*) as c FROM contestants WHERE game_id = ?')
+      .get(game.id);
+
+    if (newCount.c > 8) {
+      throw new Error('Game is full (8/8 contestants)');
+    }
+
+    return { lastInsertRowid: result.lastInsertRowid, count: newCount.c };
   });
+
+  try {
+    const result = joinTransaction();
+
+    // Broadcast join event to lobby SSE clients
+    try {
+      const { broadcastToGame } = require('./draft');
+      broadcastToGame(game.id, { type: 'join', name, count: result.count });
+    } catch (_) {
+      // SSE broadcast not available
+    }
+
+    res.json({
+      token,
+      contestantId: result.lastInsertRowid,
+      gameId: game.id,
+      gameName: game.name,
+    });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
 });
 
 // GET /api/auth/me - Get current user info from token

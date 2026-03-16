@@ -23,6 +23,9 @@ function getDb() {
     if (!gameColumns.includes('current_pick_deadline')) {
       db.exec('ALTER TABLE games ADD COLUMN current_pick_deadline DATETIME');
     }
+    if (!gameColumns.includes('paused_remaining')) {
+      db.exec('ALTER TABLE games ADD COLUMN paused_remaining INTEGER');
+    }
 
     // Migrate: add team color/logo columns if missing (for existing databases)
     const teamColumns = db.prepare("PRAGMA table_info(teams)").all().map(c => c.name);

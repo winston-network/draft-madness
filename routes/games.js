@@ -58,22 +58,36 @@ router.get('/:code', (req, res) => {
 // POST /api/games/:code/start-draft - Start the draft (shuffle positions)
 router.post('/:code/start-draft', (req, res) => {
   const db = getDb();
-  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(req.params.code.toUpperCase());
+  const code = req.params.code.toUpperCase();
+  const game = db.prepare('SELECT * FROM games WHERE id = ?').get(code);
   if (!game) return res.status(404).json({ error: 'Game not found' });
 
-  if (game.status !== 'lobby') {
+  // Atomic status update: only one caller can transition lobby -> drafting
+  const statusChange = db.prepare("UPDATE games SET status = 'drafting' WHERE id = ? AND status = 'lobby'").run(code);
+
+  if (statusChange.changes === 0) {
+    // Check if already drafting (idempotent)
+    const current = db.prepare('SELECT status FROM games WHERE id = ?').get(code);
+    if (current && current.status === 'drafting') {
+      const updated = db
+        .prepare('SELECT id, name, draft_position FROM contestants WHERE game_id = ? ORDER BY draft_position')
+        .all(code);
+      return res.json({ message: 'Draft started!', contestants: updated });
+    }
     return res.status(400).json({ error: 'Game is not in lobby phase' });
   }
 
   const contestants = db
     .prepare('SELECT id FROM contestants WHERE game_id = ?')
-    .all(game.id);
+    .all(code);
 
   if (contestants.length !== 8) {
+    // Roll back status since we can't start without 8 players
+    db.prepare("UPDATE games SET status = 'lobby' WHERE id = ?").run(code);
     return res.status(400).json({ error: `Need exactly 8 contestants (have ${contestants.length})` });
   }
 
-  // Draw straws - randomly assign draft positions
+  // Draw straws - randomly assign draft positions (inside transaction)
   const positions = shufflePositions();
 
   const updatePos = db.prepare('UPDATE contestants SET draft_position = ? WHERE id = ?');
@@ -81,17 +95,16 @@ router.post('/:code/start-draft', (req, res) => {
     contestants.forEach((c, i) => {
       updatePos.run(positions[i], c.id);
     });
-    db.prepare("UPDATE games SET status = 'drafting' WHERE id = ?").run(game.id);
   });
 
   assignPositions();
 
   // Start the pick timer for the first pick
-  startPickTimer(db, game.id);
+  startPickTimer(db, code);
 
   const updated = db
     .prepare('SELECT id, name, draft_position FROM contestants WHERE game_id = ? ORDER BY draft_position')
-    .all(game.id);
+    .all(code);
 
   res.json({ message: 'Draft started!', contestants: updated });
 });

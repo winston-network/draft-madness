@@ -18,10 +18,29 @@
       <p class="landing-tagline">Draft your teams. Track your scores. Win the pot.</p>
       <p class="landing-subtitle">Indianapolis 2026 &bull; Final Four &bull; Lucas Oil Stadium</p>
       <div class="landing-forms">
-        <div class="card" style="max-width:400px; margin:0 auto">
-          <p style="font-size:0.9rem; margin-bottom:0.75rem; opacity:0.7">Creates a game, adds 7 bots, and joins you in.</p>
-          <input type="text" id="test-name" placeholder="Your name" value="TestPlayer">
-          <button class="btn btn-accent btn-lg" onclick="quickTest()" style="width:100%">Launch Test Game</button>
+        <div class="card">
+          <h2>Create a Game</h2>
+          <input type="text" id="create-name" placeholder="Game name (e.g. Office Pool 2026)">
+          <button class="btn btn-primary btn-lg" onclick="createGame()" style="width:100%">Create Game</button>
+        </div>
+        <div class="card">
+          <h2>Join a Game</h2>
+          <input type="text" id="join-code" placeholder="Enter game code" maxlength="6" style="text-transform:uppercase; letter-spacing:3px; text-align:center; font-size:1.3rem; font-weight:700">
+          <input type="text" id="join-name" placeholder="Your name">
+          <button class="btn btn-accent btn-lg" onclick="joinGame()" style="width:100%">Join Game</button>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem; text-align:center; position:relative; z-index:1">
+        <button onclick="document.getElementById('test-section').style.display = document.getElementById('test-section').style.display === 'none' ? 'block' : 'none'" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.82rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; padding:0.5rem 1rem;">
+          Quick Test Mode &#9662;
+        </button>
+        <div id="test-section" style="display:none; margin-top:0.75rem;">
+          <div class="card" style="max-width:400px; margin:0 auto; opacity:0.8">
+            <p style="font-size:0.9rem; margin-bottom:0.75rem; opacity:0.7">Creates a game, adds 7 bots, and joins you in.</p>
+            <input type="text" id="test-name" placeholder="Your name" value="TestPlayer">
+            <button class="btn btn-accent btn-lg" onclick="quickTest()" style="width:100%">Launch Test Game</button>
+          </div>
         </div>
       </div>
     </div>
@@ -49,6 +68,7 @@
     <div id="status-bar" class="status-bar" style="display:none">
       <span class="status-dot"></span>
       <span id="status-text"></span>
+      <button id="pause-resume-btn" class="btn btn-sm" style="display:none; margin-left:0.5rem" onclick="togglePause()">Pause</button>
       <span id="timer-display" class="timer-display"></span>
     </div>
 
@@ -67,6 +87,13 @@
         <p style="margin-bottom:0.75rem; color:var(--text-muted); font-size:0.85rem">Share this code with your friends:</p>
         <div style="text-align:center; margin-bottom:1.25rem">
           <span class="game-code-display-large" id="lobby-code"></span>
+        </div>
+        <div id="lobby-share-link" style="display:none; text-align:center; margin-bottom:1rem">
+          <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.4rem">Or share this link:</p>
+          <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center">
+            <input type="text" id="lobby-share-url" readonly style="flex:1; max-width:320px; font-size:0.82rem; cursor:pointer; margin-bottom:0" onclick="this.select(); document.execCommand('copy'); showToast('Link copied!')">
+            <button class="btn btn-sm btn-primary" onclick="document.getElementById('lobby-share-url').select(); document.execCommand('copy'); showToast('Link copied!')">Copy</button>
+          </div>
         </div>
         <div class="contestant-count" id="lobby-count">
           <span>0/8 contestants</span>

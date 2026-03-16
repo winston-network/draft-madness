@@ -7,6 +7,7 @@ let draftState = null;
 let sseSource = null;
 let pollInterval = null;
 let countdownInterval = null;
+let pickPending = false;
 
 // ─── Toast ───
 function showToast(msg, ms = 3000) {
@@ -37,13 +38,12 @@ function switchTab(tab) {
 async function createGame() {
   const btn = event.target;
   const name = document.getElementById('create-name').value.trim();
-  const buyIn = document.getElementById('create-buyin').value;
   if (!name) return showToast('Enter a game name');
 
   btn.disabled = true;
   btn.textContent = 'Creating...';
   try {
-    const game = await API.createGame(name, buyIn);
+    const game = await API.createGame(name, 0);
     showToast(`Game created! Code: ${game.gameCode}`);
     document.getElementById('join-code').value = game.gameCode;
   } catch (e) {
@@ -93,6 +93,14 @@ async function loadLobby() {
     document.getElementById('lobby-game-name').textContent = game.name;
     document.getElementById('lobby-buyin').textContent = game.buy_in || 0;
     document.getElementById('lobby-code').textContent = game.id;
+
+    // Show shareable link
+    const shareLink = document.getElementById('lobby-share-link');
+    const shareUrl = document.getElementById('lobby-share-url');
+    if (shareLink && shareUrl) {
+      shareUrl.value = `${window.location.origin}?code=${game.id}`;
+      shareLink.style.display = 'block';
+    }
 
     const countEl = document.getElementById('lobby-count');
     countEl.querySelector('span').textContent = `${game.contestants.length}/8 contestants`;
@@ -433,8 +441,11 @@ function updateStatusBar() {
   const timerEl = document.getElementById('timer-display');
   const session = API.getSession();
 
+  const pauseBtn = document.getElementById('pause-resume-btn');
+
   if (!draftState || !draftState.currentPick) {
     bar.style.display = 'none';
+    if (pauseBtn) pauseBtn.style.display = 'none';
     return;
   }
 
@@ -444,8 +455,16 @@ function updateStatusBar() {
     bar.className = 'status-bar complete';
     statusText.textContent = 'Draft complete! Check the Leaderboard.';
     if (timerEl) timerEl.textContent = '';
+    if (pauseBtn) pauseBtn.style.display = 'none';
     stopCountdown();
     return;
+  }
+
+  // Show pause/resume button during active draft
+  if (pauseBtn) {
+    pauseBtn.style.display = 'inline-flex';
+    const isPaused = draftState.game && draftState.game.status === 'paused';
+    updatePauseButton(isPaused);
   }
 
   const isMyTurn = draftState.currentContestant &&
@@ -462,6 +481,8 @@ function updateStatusBar() {
 }
 
 async function makePick(teamId) {
+  if (pickPending) return;
+  pickPending = true;
   const session = API.getSession();
   try {
     const result = await API.makePick(session.gameCode, teamId);
@@ -469,6 +490,8 @@ async function makePick(teamId) {
     loadDraft();
   } catch (e) {
     showToast(e.message);
+  } finally {
+    pickPending = false;
   }
 }
 
@@ -484,14 +507,57 @@ function connectSSE() {
         const autoLabel = data.autoPick ? ' (auto-pick)' : '';
         showToast(`${data.pick.contestantName} drafted ${data.pick.teamName}${autoLabel}`);
         loadDraft();
+      } else if (data.type === 'join') {
+        loadLobby();
+      } else if (data.type === 'pause') {
+        showToast('Draft paused');
+        stopCountdown();
+        updatePauseButton(true);
+      } else if (data.type === 'resume') {
+        showToast('Draft resumed');
+        loadDraft();
+        updatePauseButton(false);
       }
     } catch (_) {}
   };
   sseSource.onerror = () => {
     sseSource.close();
     sseSource = null;
-    setTimeout(connectSSE, 3000);
+    setTimeout(() => {
+      connectSSE();
+      loadDraft();
+    }, 3000);
   };
+}
+
+// ─── Pause / Resume ───
+async function togglePause() {
+  const session = API.getSession();
+  const btn = document.getElementById('pause-resume-btn');
+  const isPaused = btn.textContent.trim() === 'Resume';
+  const endpoint = isPaused ? 'resume' : 'pause';
+
+  btn.disabled = true;
+  try {
+    await fetch(`/api/draft/${session.gameCode}/${endpoint}`, { method: 'POST' });
+    updatePauseButton(!isPaused);
+  } catch (e) {
+    showToast(e.message || 'Action failed');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function updatePauseButton(paused) {
+  const btn = document.getElementById('pause-resume-btn');
+  if (!btn) return;
+  if (paused) {
+    btn.textContent = 'Resume';
+    btn.className = 'btn btn-sm btn-success';
+  } else {
+    btn.textContent = 'Pause';
+    btn.className = 'btn btn-sm btn-accent';
+  }
 }
 
 // ─── Leaderboard ───
@@ -740,6 +806,13 @@ async function testSimulateTournamentRound() {
 
 // ─── Init ───
 (function init() {
+  // Auto-fill join code from URL query parameter
+  const urlCode = new URLSearchParams(window.location.search).get('code');
+  if (urlCode) {
+    const joinCodeEl = document.getElementById('join-code');
+    if (joinCodeEl) joinCodeEl.value = urlCode.toUpperCase();
+  }
+
   const session = API.getSession();
   if (session.token && session.gameCode) {
     API.me()
