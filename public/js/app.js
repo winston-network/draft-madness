@@ -79,6 +79,7 @@ function enterGame(code) {
   document.getElementById('game-code-display').textContent = code;
   document.getElementById('player-name-display').textContent = API.getSession().name;
   loadLobby();
+  switchTab('draft');
 }
 
 // ─── Lobby ───

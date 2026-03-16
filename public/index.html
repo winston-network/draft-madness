@@ -62,13 +62,12 @@
     </div>
 
     <div class="nav-tabs">
-      <button class="active" onclick="switchTab('lobby')">Lobby</button>
-      <button onclick="switchTab('draft')">Draft</button>
+      <button class="active" onclick="switchTab('draft')">Draft</button>
       <button onclick="switchTab('scores')">Leaderboard</button>
     </div>
 
     <!-- LOBBY TAB -->
-    <div id="tab-lobby" class="page active">
+    <div id="tab-lobby" class="page" style="display:none">
       <div class="card">
         <h2>Game: <span id="lobby-game-name"></span></h2>
         <p style="margin-bottom:0.75rem; color:var(--text-secondary); font-weight:500">
