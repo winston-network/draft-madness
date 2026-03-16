@@ -622,6 +622,7 @@ function renderLeaderboard(data, headId, bodyId) {
   head.innerHTML = `<tr>
     <th class="lb-rank">#</th>
     <th class="lb-name">Contestant</th>
+    <th class="lb-alive">Alive</th>
     ${roundCols
       .map((r) => {
         const played = roundsPlayed.includes(r);
@@ -630,7 +631,6 @@ function renderLeaderboard(data, headId, bodyId) {
       })
       .join('')}
     <th class="lb-total">Total</th>
-    <th class="lb-alive">Alive</th>
   </tr>`;
 
   // Build rows
@@ -653,9 +653,9 @@ function renderLeaderboard(data, headId, bodyId) {
       return `<tr class="${rowClass}" onclick="showTeamDetail(${s.contestantId}, '${s.name.replace(/'/g, "\\'")}')">
         <td class="lb-rank"><span class="rank-badge ${rankClass}">${showMedal ? ['', '&#9679;', '&#9679;', '&#9679;'][rank] : rank}</span></td>
         <td class="lb-name"><strong>${s.name}</strong></td>
+        <td class="lb-alive"><span class="alive-count">${s.teamsAlive}<span class="alive-of">/16</span></span></td>
         ${roundCells}
         <td class="lb-total"><span class="score-value">${s.score}</span></td>
-        <td class="lb-alive"><span class="alive-count">${s.teamsAlive}<span class="alive-of">/16</span></span></td>
       </tr>`;
     })
     .join('');
@@ -686,12 +686,12 @@ function renderSidebarLeaderboard(data) {
   head.innerHTML = `<tr>
     <th class="lb-rank">#</th>
     <th class="lb-name">Name</th>
+    <th style="width:32px; font-size:0.5rem; padding:0.3rem 0.15rem">ALV</th>
     ${roundCols.map(r => {
       const played = roundsPlayed.includes(r);
       return `<th class="lb-round ${played ? '' : 'round-pending'}" style="width:32px; font-size:0.5rem; padding:0.3rem 0.15rem">${shortLabels[r]}</th>`;
     }).join('')}
     <th class="lb-total" style="width:44px">PTS</th>
-    <th style="width:32px; font-size:0.5rem; padding:0.3rem 0.15rem">ALV</th>
   </tr>`;
 
   body.innerHTML = standings.map((s, i) => {
@@ -710,9 +710,9 @@ function renderSidebarLeaderboard(data) {
     return `<tr class="${rowClass}">
       <td class="lb-rank" style="padding:0.25rem 0.15rem"><span class="rank-badge ${rankClass}" style="width:22px; height:22px; font-size:0.7rem">${rank}</span></td>
       <td class="lb-name" style="padding:0.25rem 0.3rem; font-size:0.8rem; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><strong>${s.name}</strong></td>
+      <td style="padding:0.25rem 0.15rem; text-align:center"><span class="alive-count" style="font-size:0.75rem">${s.teamsAlive}</span></td>
       ${roundCells}
       <td class="lb-total" style="padding:0.25rem 0.15rem"><span class="score-value" style="font-size:0.9rem">${s.score}</span></td>
-      <td style="padding:0.25rem 0.15rem; text-align:center"><span class="alive-count" style="font-size:0.75rem">${s.teamsAlive}</span></td>
     </tr>`;
   }).join('');
 }
