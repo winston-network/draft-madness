@@ -63,7 +63,7 @@ body {
    HEADER
    ═══════════════════════════════════════════ */
 .header {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
+  background: linear-gradient(135deg, #050a12 0%, var(--primary) 60%, var(--primary-light) 100%);
   color: white;
   padding: 0.75rem 1.25rem;
   display: flex;
@@ -308,7 +308,7 @@ input:focus {
 .btn-lg { padding: 1rem 2.5rem; font-size: 1.05rem; border-radius: var(--radius-md); }
 
 /* ═══════════════════════════════════════════
-   LANDING PAGE — Arena experience
+   LANDING PAGE — Real photo background
    ═══════════════════════════════════════════ */
 .landing {
   display: flex;
@@ -318,84 +318,43 @@ input:focus {
   min-height: 100vh;
   text-align: center;
   padding: 2rem 1.5rem;
-  /* Hardwood floor base with arena lighting */
+  /* Real basketball photo background */
   background:
-    /* Spotlight from above */
-    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
-    /* Red glow left */
-    radial-gradient(ellipse at 10% 50%, rgba(218,31,38,0.18) 0%, transparent 40%),
-    /* Red glow right */
-    radial-gradient(ellipse at 90% 50%, rgba(218,31,38,0.12) 0%, transparent 40%),
-    /* Gold warmth bottom */
-    radial-gradient(ellipse at 50% 90%, rgba(245,200,66,0.08) 0%, transparent 40%),
-    /* Hardwood grain texture (repeating gradient) */
-    repeating-linear-gradient(
-      90deg,
-      rgba(139,90,43,0.03) 0px,
-      rgba(160,110,50,0.05) 2px,
-      rgba(120,75,30,0.02) 4px,
-      rgba(140,95,45,0.04) 8px
-    ),
-    /* Base dark with warm undertone */
-    linear-gradient(170deg, #0d1b2a 0%, #1a0f0a 40%, #0d1b2a 100%);
+    /* Dark overlay for readability */
+    linear-gradient(180deg, rgba(5,8,15,0.75) 0%, rgba(5,8,15,0.6) 40%, rgba(5,8,15,0.85) 100%),
+    /* Red accent vignette */
+    radial-gradient(ellipse at 50% 0%, rgba(218,31,38,0.2) 0%, transparent 60%),
+    /* Photo */
+    url('https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1920&q=80') center/cover no-repeat;
   position: relative;
   overflow: hidden;
 }
 
-/* Full basketball court layout */
+/* Fallback if image doesn't load */
 .landing::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(90vw, 900px);
-  height: min(55vh, 500px);
-  transform: translate(-50%, -50%);
-  /* Court outline */
-  border: 2px solid rgba(255,255,255,0.06);
-  border-radius: 0;
-  pointer-events: none;
-  /* Center circle */
-  background:
-    radial-gradient(circle at 50% 50%, transparent 58px, rgba(255,255,255,0.05) 58px, rgba(255,255,255,0.05) 60px, transparent 60px),
-    radial-gradient(circle at 50% 50%, transparent 18px, rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 20px, transparent 20px),
-    /* Center line */
-    linear-gradient(0deg, transparent calc(50% - 1px), rgba(255,255,255,0.05) calc(50% - 1px), rgba(255,255,255,0.05) calc(50% + 1px), transparent calc(50% + 1px)),
-    /* Free throw circles */
-    radial-gradient(circle at 15% 50%, transparent 38px, rgba(255,255,255,0.04) 38px, rgba(255,255,255,0.04) 40px, transparent 40px),
-    radial-gradient(circle at 85% 50%, transparent 38px, rgba(255,255,255,0.04) 38px, rgba(255,255,255,0.04) 40px, transparent 40px);
+  inset: 0;
+  background: linear-gradient(170deg, #0a0f1a 0%, #12080a 50%, #0a0f1a 100%);
+  z-index: -1;
 }
 
-/* Three-point arcs */
 .landing::after {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(90vw, 900px);
-  height: min(55vh, 500px);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  background:
-    /* Left key/paint */
-    linear-gradient(90deg, transparent 5%, rgba(218,31,38,0.04) 5%, rgba(218,31,38,0.04) 20%, transparent 20%),
-    /* Right key/paint */
-    linear-gradient(90deg, transparent 80%, rgba(218,31,38,0.04) 80%, rgba(218,31,38,0.04) 95%, transparent 95%);
-}
-
-/* Animated particles / arena dust */
-@keyframes float {
-  0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-  10% { opacity: 0.6; }
-  90% { opacity: 0.6; }
-  50% { transform: translateY(-30vh) translateX(20px); }
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--crimson), var(--gold), var(--crimson), transparent);
+  z-index: 2;
 }
 
 .landing-logo {
-  width: min(520px, 92vw);
+  width: min(540px, 92vw);
   height: auto;
-  margin-bottom: 1.2rem;
-  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.5)) drop-shadow(0 0 60px rgba(218,31,38,0.15));
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
   animation: logoIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   z-index: 1;
@@ -407,13 +366,13 @@ input:focus {
 }
 
 .landing-tagline {
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,0.85);
   margin-bottom: 0.5rem;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.8);
   animation: fadeIn 0.7s ease 0.2s both;
   position: relative;
   z-index: 1;
@@ -421,12 +380,12 @@ input:focus {
 
 .landing-subtitle {
   color: var(--gold);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
   margin-bottom: 2.5rem;
-  text-shadow: 0 0 20px rgba(245,200,66,0.3);
+  text-shadow: 0 0 24px rgba(245,200,66,0.4), 0 2px 8px rgba(0,0,0,0.6);
   animation: fadeIn 0.7s ease 0.35s both;
   position: relative;
   z-index: 1;
@@ -450,26 +409,27 @@ input:focus {
   padding: 2rem;
   position: relative;
   overflow: hidden;
-  background: rgba(13,27,42,0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.9);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.92);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .landing-forms .card h2 { color: white; }
 
 .landing-forms .card input {
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.18);
   color: white;
 }
 
-.landing-forms .card input::placeholder { color: rgba(255,255,255,0.35); }
+.landing-forms .card input::placeholder { color: rgba(255,255,255,0.4); }
 
 .landing-forms .card input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(245,200,66,0.15);
+  box-shadow: 0 0 0 3px rgba(245,200,66,0.2);
+  background: rgba(255,255,255,0.12);
 }
 
 .landing-forms .card::before {
@@ -482,11 +442,11 @@ input:focus {
 }
 
 .landing-forms .card:first-child::before {
-  background: linear-gradient(90deg, var(--crimson), var(--crimson-light));
+  background: linear-gradient(90deg, var(--crimson), #ff4444);
 }
 
 .landing-forms .card:last-child::before {
-  background: linear-gradient(90deg, var(--accent), var(--gold));
+  background: linear-gradient(90deg, var(--gold), #ffdd55);
 }
 
 .landing-forms .card:hover {
