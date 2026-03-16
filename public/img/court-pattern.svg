@@ -1,54 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="100" viewBox="0 0 240 100" fill="none">
-  <!-- Hand-drawn X's and O's with play arrows -->
-  <g stroke-linecap="round" fill="none">
-    <!-- X marks - orange chalk -->
-    <g stroke="rgba(244,121,32,0.18)" stroke-width="2">
-      <line x1="18" y1="14" x2="28" y2="24"/>
-      <line x1="28" y1="14" x2="18" y2="24"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" fill="none">
+  <!-- Basketball court lines - prominent -->
+  <g stroke="rgba(255,255,255,0.06)" stroke-width="2" fill="none" stroke-linecap="round">
+    <!-- Half court line -->
+    <line x1="600" y1="0" x2="600" y2="700"/>
+    <!-- Center circle -->
+    <circle cx="600" cy="350" r="80"/>
+    <!-- Court boundary -->
+    <rect x="40" y="30" width="1120" height="640" rx="8"/>
+    <!-- Left free throw / key -->
+    <rect x="40" y="200" width="180" height="300" rx="4"/>
+    <circle cx="220" cy="350" r="60"/>
+    <!-- Right free throw / key -->
+    <rect x="980" y="200" width="180" height="300" rx="4"/>
+    <circle cx="980" cy="350" r="60"/>
+    <!-- Three point arcs -->
+    <path d="M40 160 Q280 350 40 540"/>
+    <path d="M1160 160 Q920 350 1160 540"/>
+  </g>
 
-      <line x1="95" y1="60" x2="105" y2="70"/>
-      <line x1="105" y1="60" x2="95" y2="70"/>
+  <!-- Hand-drawn X's - big, loose, sketchy (5 total) -->
+  <g stroke="rgba(244,121,32,0.14)" stroke-width="3.5" stroke-linecap="round" fill="none">
+    <!-- X 1 - top left area -->
+    <line x1="130" y1="80" x2="175" y2="130"/>
+    <line x1="172" y1="78" x2="133" y2="128"/>
 
-      <line x1="175" y1="10" x2="185" y2="20"/>
-      <line x1="185" y1="10" x2="175" y2="20"/>
+    <!-- X 2 - center right -->
+    <line x1="820" y1="280" x2="870" y2="335"/>
+    <line x1="867" y1="278" x2="823" y2="333"/>
 
-      <line x1="155" y1="72" x2="165" y2="82"/>
-      <line x1="165" y1="72" x2="155" y2="82"/>
+    <!-- X 3 - bottom left -->
+    <line x1="280" y1="520" x2="330" y2="575"/>
+    <line x1="327" y1="518" x2="283" y2="573"/>
 
-      <line x1="120" y1="5" x2="128" y2="13"/>
-      <line x1="128" y1="5" x2="120" y2="13"/>
+    <!-- X 4 - top right -->
+    <line x1="950" y1="90" x2="995" y2="140"/>
+    <line x1="992" y1="88" x2="953" y2="138"/>
 
-      <line x1="52" y1="78" x2="60" y2="86"/>
-      <line x1="60" y1="78" x2="52" y2="86"/>
-    </g>
+    <!-- X 5 - bottom center -->
+    <line x1="550" y1="580" x2="598" y2="632"/>
+    <line x1="595" y1="578" x2="553" y2="630"/>
+  </g>
 
-    <!-- O marks - white chalk -->
-    <g stroke="rgba(255,255,255,0.12)" stroke-width="1.8">
-      <circle cx="55" cy="30" r="7"/>
-      <circle cx="140" cy="18" r="6"/>
-      <circle cx="210" cy="55" r="7"/>
-      <circle cx="30" cy="70" r="5.5"/>
-      <circle cx="195" cy="88" r="5"/>
-      <circle cx="80" cy="8" r="5.5"/>
-    </g>
+  <!-- Hand-drawn O's - big, slightly imperfect circles (5 total) -->
+  <g stroke="rgba(255,255,255,0.1)" stroke-width="3" stroke-linecap="round" fill="none">
+    <!-- O 1 - left of center -->
+    <ellipse cx="400" cy="170" rx="24" ry="22"/>
 
-    <!-- Play arrows / routes -->
-    <g stroke="rgba(255,255,255,0.07)" stroke-width="1.2">
-      <path d="M65 35 Q78 25 88 35"/>
-      <path d="M85 35 l4 -3 l-1 4" fill="rgba(255,255,255,0.07)"/>
+    <!-- O 2 - right side -->
+    <ellipse cx="1050" cy="430" rx="22" ry="25"/>
 
-      <path d="M150 25 Q160 15 172 22"/>
-      <path d="M170 22 l3 -2 l-1 3.5" fill="rgba(255,255,255,0.07)"/>
+    <!-- O 3 - bottom left -->
+    <ellipse cx="150" cy="460" rx="25" ry="23"/>
 
-      <path d="M215 60 Q225 50 232 58"/>
-    </g>
+    <!-- O 4 - top center -->
+    <ellipse cx="700" cy="100" rx="23" ry="21"/>
 
-    <!-- Court lines - subtle -->
-    <line x1="0" y1="50" x2="240" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
-    <circle cx="120" cy="50" r="22" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
-    <line x1="120" y1="0" x2="120" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="0.8"/>
-    <!-- Free throw circles -->
-    <path d="M35 0 Q35 20 35 30" stroke="rgba(255,255,255,0.025)" stroke-width="0.8"/>
-    <path d="M205 100 Q205 80 205 70" stroke="rgba(255,255,255,0.025)" stroke-width="0.8"/>
+    <!-- O 5 - center -->
+    <ellipse cx="480" cy="420" rx="21" ry="24"/>
   </g>
 </svg>
