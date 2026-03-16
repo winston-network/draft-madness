@@ -1,6 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 170">
   <defs>
-    <!-- March Madness official palette -->
     <linearGradient id="navy-deep" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#0d2137"/>
       <stop offset="100%" style="stop-color:#091f2c"/>
@@ -9,11 +8,6 @@
       <stop offset="0%" style="stop-color:#da1f26"/>
       <stop offset="50%" style="stop-color:#ff2d35"/>
       <stop offset="100%" style="stop-color:#da1f26"/>
-    </linearGradient>
-    <linearGradient id="ball-hot" x1="20%" y1="0%" x2="80%" y2="100%">
-      <stop offset="0%" style="stop-color:#ff8c42"/>
-      <stop offset="40%" style="stop-color:#ff6b35"/>
-      <stop offset="100%" style="stop-color:#e84310"/>
     </linearGradient>
     <linearGradient id="chrome" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#ffffff"/>
@@ -25,6 +19,10 @@
       <stop offset="20%" style="stop-color:#f5c842"/>
       <stop offset="80%" style="stop-color:#e8a825"/>
       <stop offset="100%" style="stop-color:#e8a825; stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="player-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#c8d4e2"/>
     </linearGradient>
     <filter id="glow-red">
       <feGaussianBlur stdDeviation="4" result="blur"/>
@@ -38,71 +36,78 @@
     <filter id="drop-sm">
       <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000030"/>
     </filter>
-    <clipPath id="ball-clip"><circle cx="0" cy="0" r="48"/></clipPath>
+    <filter id="player-glow">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#da1f2640"/>
+    </filter>
   </defs>
 
-  <!-- Background shield shape -->
-  <path d="M10,8 H550 Q558,8 558,16 V144 Q558,152 550,152 H10 Q2,152 2,144 V16 Q2,8 10,8 Z" fill="url(#navy-deep)" rx="12" filter="url(#drop)"/>
+  <!-- Background shield -->
+  <rect x="2" y="8" width="576" height="154" rx="12" fill="url(#navy-deep)" filter="url(#drop)"/>
 
-  <!-- Crimson diagonal slash accents -->
-  <polygon points="0,0 90,0 50,160 0,160" fill="#da1f26" opacity="0.12"/>
-  <polygon points="480,0 560,0 560,160 520,160" fill="#da1f26" opacity="0.08"/>
+  <!-- Top crimson accent bar -->
+  <rect x="2" y="8" width="576" height="3.5" rx="1.5" fill="url(#crimson)" opacity="0.85"/>
 
-  <!-- Court line pattern (subtle) -->
-  <g opacity="0.06" stroke="white" fill="none" stroke-width="1.5">
-    <circle cx="280" cy="80" r="60"/>
-    <circle cx="280" cy="80" r="20"/>
-    <line x1="280" y1="8" x2="280" y2="152"/>
+  <!-- Subtle diagonal accents -->
+  <polygon points="0,0 80,0 40,170 0,170" fill="#da1f26" opacity="0.08"/>
+  <polygon points="500,0 580,0 580,170 540,170" fill="#da1f26" opacity="0.06"/>
+
+  <!-- Court line pattern -->
+  <g opacity="0.04" stroke="white" fill="none" stroke-width="1.5">
+    <circle cx="300" cy="85" r="55"/>
+    <circle cx="300" cy="85" r="18"/>
   </g>
 
-  <!-- Basketball -->
-  <g transform="translate(72, 80)" filter="url(#drop)">
-    <circle cx="0" cy="0" r="48" fill="url(#ball-hot)"/>
-    <g clip-path="url(#ball-clip)" stroke="#b33500" stroke-opacity="0.45" fill="none">
-      <path d="M-48,0 C-24,-22 24,-22 48,0" stroke-width="2.5"/>
-      <path d="M-48,0 C-24,22 24,22 48,0" stroke-width="2.5"/>
-      <line x1="0" y1="-48" x2="0" y2="48" stroke-width="2.5"/>
-      <path d="M-34,-36 C-14,-6 -14,6 -34,36" stroke-width="2"/>
-      <path d="M34,-36 C14,-6 14,6 34,36" stroke-width="2"/>
+  <!-- NBA-style player silhouette (dribbling/driving to basket) -->
+  <g transform="translate(58, 22) scale(0.85)" filter="url(#player-glow)">
+    <g fill="url(#player-grad)">
+      <!-- Head -->
+      <ellipse cx="52" cy="14" rx="11" ry="12"/>
+      <!-- Body/torso leaning forward -->
+      <path d="M44,25 C40,28 36,40 38,55 L42,56 C44,44 48,36 52,30 L58,30 C62,36 64,44 62,56 L66,55 C68,40 64,28 60,25 Z"/>
+      <!-- Left arm reaching down with ball -->
+      <path d="M38,34 C32,40 26,52 22,62 L20,72 C18,78 20,80 24,78 L28,68 C30,60 34,50 40,42 Z" />
+      <!-- Right arm up/back for balance -->
+      <path d="M64,32 C70,28 78,22 84,18 L86,14 C88,10 86,8 82,10 L76,16 C72,20 66,26 62,30 Z"/>
+      <!-- Left leg forward (driving) -->
+      <path d="M40,54 C36,68 30,82 26,98 L22,118 C20,124 24,126 28,122 L34,102 C38,86 42,72 44,58 Z"/>
+      <!-- Right leg back (pushing off) -->
+      <path d="M60,54 C64,66 72,80 80,96 L88,116 C90,122 86,124 82,120 L76,100 C70,84 64,70 60,58 Z"/>
+      <!-- Basketball in left hand -->
+      <circle cx="20" cy="74" r="10" fill="none" stroke="url(#player-grad)" stroke-width="2.5"/>
+      <path d="M10,74 C16,68 24,68 30,74" fill="none" stroke="url(#player-grad)" stroke-width="1.2"/>
+      <path d="M10,74 C16,80 24,80 30,74" fill="none" stroke="url(#player-grad)" stroke-width="1.2"/>
+      <line x1="20" y1="64" x2="20" y2="84" stroke="url(#player-grad)" stroke-width="1.2"/>
     </g>
-    <!-- Shine -->
-    <ellipse cx="-12" cy="-16" rx="28" ry="24" fill="white" opacity="0.15"/>
-    <circle cx="0" cy="0" r="47" fill="none" stroke="#ffb87a" stroke-width="0.8" opacity="0.4"/>
   </g>
 
   <!-- DRAFT — chrome text -->
-  <text x="138" y="72" font-family="'Arial Black', 'Impact', 'Helvetica Neue', sans-serif" font-size="62" font-weight="900" fill="url(#chrome)" letter-spacing="5" filter="url(#drop-sm)">DRAFT</text>
-
-  <!-- MADNESS — crimson text with glow -->
-  <text x="138" y="128" font-family="'Arial Black', 'Impact', 'Helvetica Neue', sans-serif" font-size="52" font-weight="900" fill="url(#crimson)" letter-spacing="7" filter="url(#glow-red)">MADNESS</text>
+  <text x="158" y="78" font-family="'Arial Black', 'Impact', 'Helvetica Neue', sans-serif" font-size="64" font-weight="900" fill="url(#chrome)" letter-spacing="6" filter="url(#drop-sm)">DRAFT</text>
 
   <!-- Gold accent bar -->
-  <rect x="138" y="78" width="310" height="3.5" rx="1.75" fill="url(#gold-bar)"/>
+  <rect x="158" y="84" width="320" height="3.5" rx="1.75" fill="url(#gold-bar)"/>
 
-  <!-- Bracket graphic -->
-  <g transform="translate(472, 28)" stroke="white" stroke-width="2" opacity="0.25" fill="none" stroke-linecap="round">
-    <path d="M0,0 H16 V14 H28"/>
-    <path d="M0,28 H16 V14"/>
-    <path d="M0,68 H16 V82 H28"/>
-    <path d="M0,96 H16 V82"/>
-    <path d="M28,14 V48 H28"/>
-    <path d="M28,82 V48"/>
-    <path d="M28,48 H44"/>
-    <!-- Trophy -->
-    <g transform="translate(52, 40)" stroke="#f5c842" opacity="0.7">
-      <path d="M-6,-10 Q-8,-10 -8,-6 V-2 Q-8,6 0,8 Q8,6 8,-2 V-6 Q8,-10 6,-10 Z" stroke-width="1.8" fill="#f5c84215"/>
-      <line x1="0" y1="8" x2="0" y2="14" stroke-width="1.8"/>
-      <line x1="-5" y1="14" x2="5" y2="14" stroke-width="2"/>
-      <!-- Handles -->
-      <path d="M-8,-4 Q-12,-4 -12,0 Q-12,3 -8,3" stroke-width="1.2" fill="none"/>
-      <path d="M8,-4 Q12,-4 12,0 Q12,3 8,3" stroke-width="1.2" fill="none"/>
+  <!-- MADNESS — crimson text with glow -->
+  <text x="158" y="136" font-family="'Arial Black', 'Impact', 'Helvetica Neue', sans-serif" font-size="54" font-weight="900" fill="url(#crimson)" letter-spacing="8" filter="url(#glow-red)">MADNESS</text>
+
+  <!-- Bracket + Trophy graphic -->
+  <g transform="translate(500, 30)" stroke="white" stroke-width="2" opacity="0.2" fill="none" stroke-linecap="round">
+    <path d="M0,0 H14 V12 H24"/>
+    <path d="M0,24 H14 V12"/>
+    <path d="M0,60 H14 V72 H24"/>
+    <path d="M0,84 H14 V72"/>
+    <path d="M24,12 V42"/>
+    <path d="M24,72 V42"/>
+    <path d="M24,42 H38"/>
+    <g transform="translate(46, 34)" stroke="#f5c842" opacity="0.6">
+      <path d="M-6,-10 Q-8,-10 -8,-6 V-2 Q-8,6 0,8 Q8,6 8,-2 V-6 Q8,-10 6,-10 Z" stroke-width="1.6" fill="#f5c84210"/>
+      <line x1="0" y1="8" x2="0" y2="13" stroke-width="1.6"/>
+      <line x1="-5" y1="13" x2="5" y2="13" stroke-width="1.8"/>
+      <path d="M-8,-4 Q-11,-4 -11,0 Q-11,3 -8,3" stroke-width="1" fill="none"/>
+      <path d="M8,-4 Q11,-4 11,0 Q11,3 8,3" stroke-width="1" fill="none"/>
     </g>
   </g>
 
-  <!-- "2026" small year badge -->
-  <rect x="470" y="112" width="46" height="20" rx="4" fill="#da1f26" opacity="0.9"/>
-  <text x="493" y="127" text-anchor="middle" font-family="'Arial Black', sans-serif" font-size="12" font-weight="900" fill="white" letter-spacing="1">2026</text>
-
-  <!-- Top accent line -->
-  <rect x="2" y="8" width="556" height="3" rx="1.5" fill="url(#crimson)" opacity="0.8"/>
+  <!-- 2026 badge -->
+  <rect x="498" y="120" width="46" height="20" rx="4" fill="#da1f26" opacity="0.9"/>
+  <text x="521" y="135" text-anchor="middle" font-family="'Arial Black', sans-serif" font-size="12" font-weight="900" fill="white" letter-spacing="1">2026</text>
 </svg>

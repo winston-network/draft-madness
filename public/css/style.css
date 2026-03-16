@@ -547,7 +547,7 @@ input:focus {
 /* Draft layout - two columns */
 .draft-layout {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 420px;
   gap: 1rem;
   height: calc(100vh - 140px);
 }
@@ -750,109 +750,112 @@ input:focus {
 }
 
 /* ═══════════════════════════════════════════
-   AVAILABLE TEAMS SIDEBAR
+   AVAILABLE TEAMS SIDEBAR — 4-column compact
    ═══════════════════════════════════════════ */
 .draft-sidebar {
-  overflow-y: auto;
+  overflow: hidden;
   max-height: calc(100vh - 140px);
 }
 
 .teams-list {
+  height: 100%;
+}
+
+.teams-region-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  height: 100%;
+}
+
+.teams-region-col {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+  min-width: 0;
 }
 
-.team-list-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 500;
-  transition: all 0.15s;
-  border: 1.5px solid transparent;
-}
-
-.team-list-item:hover:not(.unavailable) {
-  background: var(--border-light);
-  transform: translateX(2px);
-}
-
-/* Color coding for availability */
-.team-list-item.picks-2 {
-  border-left: 3px solid var(--success);
-}
-
-.team-list-item.picks-1 {
-  border-left: 3px solid var(--warning);
-  background: rgba(245,158,11,0.04);
-}
-
-.team-list-item.unavailable {
-  opacity: 0.25;
-  cursor: not-allowed;
-  text-decoration: line-through;
-  border-left: 3px solid var(--border);
-}
-
-.team-list-item .team-seed-num {
-  font-weight: 800;
-  font-size: 0.7rem;
-  color: white;
-  background: var(--text-secondary);
-  border-radius: 3px;
-  min-width: 22px;
-  text-align: center;
-  padding: 0.1rem 0.3rem;
-}
-
-.team-list-item .team-name-text {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.team-list-item .team-avail-badge {
-  font-size: 0.6rem;
-  font-weight: 700;
-  padding: 0.1rem 0.3rem;
-  border-radius: 3px;
-}
-
-.team-list-item.picks-2 .team-avail-badge {
-  background: var(--success-bg);
-  color: var(--success);
-}
-
-.team-list-item.picks-1 .team-avail-badge {
-  background: var(--warning-bg);
-  color: #92400e;
-}
-
-/* Region separator in sidebar */
 .teams-region-header {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 0.5rem 0.3rem 0.2rem;
+  letter-spacing: 0.5px;
+  padding: 0.3rem 0.2rem;
   color: white;
-  border-radius: 4px;
-  margin-top: 0.5rem;
+  border-radius: 3px;
+  text-align: center;
+  margin-bottom: 2px;
 }
 
-.teams-region-header:first-child { margin-top: 0; }
 .teams-region-header.East { background: var(--east); }
 .teams-region-header.West { background: var(--west); }
 .teams-region-header.South { background: var(--south); }
 .teams-region-header.Midwest { background: var(--midwest); }
 
-/* Not your turn overlay */
-.draft-sidebar.locked .team-list-item:not(.unavailable) {
+/* Compact team row */
+.team-mini {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+  min-height: 20px;
+}
+
+.team-mini:hover:not(.unavailable) {
+  background: var(--border-light);
+}
+
+.team-mini .tm-seed {
+  font-weight: 800;
+  font-size: 0.58rem;
+  color: white;
+  background: var(--text-secondary);
+  border-radius: 2px;
+  min-width: 16px;
+  text-align: center;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.team-mini .tm-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* Availability dots */
+.avail-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avail-dot.dot-2 { background: var(--success); }
+.avail-dot.dot-1 { background: var(--warning); }
+
+/* Color coding */
+.team-mini.picks-2 { }
+.team-mini.picks-1 { background: rgba(245,158,11,0.06); }
+
+.team-mini.unavailable {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.team-mini.unavailable .tm-name {
+  text-decoration: line-through;
+}
+
+/* Not your turn */
+.draft-sidebar.locked .team-mini:not(.unavailable) {
   cursor: default;
   opacity: 0.7;
 }
@@ -1159,6 +1162,13 @@ input:focus {
 /* ═══════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .draft-layout {
+    grid-template-columns: 1fr 320px;
+  }
+  .team-mini .tm-name { font-size: 0.58rem; }
+}
+
 @media (max-width: 900px) {
   .draft-layout {
     grid-template-columns: 1fr;

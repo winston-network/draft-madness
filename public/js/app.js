@@ -262,6 +262,21 @@ function renderDraftGrid(state) {
   // Determine current round (1-based)
   const currentRound = state.currentPick.isComplete ? 17 : state.currentPick.round;
 
+  // Build snake order mapping: for each round, which pick# goes to which column (draft_position)
+  // Columns are always 1-8 (left to right = draft_position 1-8)
+  // In odd rounds, position 1 picks first; in even rounds, position 8 picks first
+  function getPickNumForColumn(round, colPosition) {
+    // colPosition is 1-8 (the draft_position / column index)
+    const roundStart = (round - 1) * 8;
+    if (round % 2 === 1) {
+      // Forward: position 1 = pick 1, position 2 = pick 2, etc.
+      return roundStart + colPosition;
+    } else {
+      // Reverse: position 1 = pick 8, position 2 = pick 7, etc.
+      return roundStart + (9 - colPosition);
+    }
+  }
+
   // Column headers (contestant names)
   let html = '<div class="draft-columns-header">';
   for (let i = 1; i <= 8; i++) {
@@ -284,15 +299,13 @@ function renderDraftGrid(state) {
     // Only show: all previous, current, and next 2 future rounds
     if (roundClass === 'future' && round > currentRound + 2) continue;
 
-    const positions = [1, 2, 3, 4, 5, 6, 7, 8];
-    if ((round - 1) % 2 === 1) positions.reverse(); // snake draft
-
     html += `<div class="draft-round ${roundClass}">`;
     html += `<div class="round-header">Round ${round}</div>`;
     html += `<div class="round-picks">`;
 
-    for (const pos of positions) {
-      const pickNum = (round - 1) * 8 + positions.indexOf(pos) + 1;
+    // Always render columns 1-8 in order (matching header)
+    for (let col = 1; col <= 8; col++) {
+      const pickNum = getPickNumForColumn(round, col);
       const pick = pickMap[pickNum];
       const isCurrent = !state.currentPick.isComplete &&
         state.currentPick.pickNumber === pickNum;
@@ -365,42 +378,46 @@ function renderAvailableTeams(state) {
     sidebar.classList.remove('locked');
   }
 
-  let html = '';
+  // 4-column grid: one column per region, all 64 teams visible
+  let html = '<div class="teams-region-grid">';
 
   for (const region of regions) {
+    html += `<div class="teams-region-col">`;
     html += `<div class="teams-region-header ${region}">${region}</div>`;
 
-    // Get teams for this region, sorted by seed
     const regionTeams = Object.values(allTeamMap)
       .filter((t) => t.region === region)
       .sort((a, b) => a.seed - b.seed);
 
-    // Separate available from unavailable
-    const available = regionTeams.filter((t) => (draftedTeams[t.id] || 0) < 2);
-    const unavailable = regionTeams.filter((t) => (draftedTeams[t.id] || 0) >= 2);
-
-    for (const team of available) {
+    for (const team of regionTeams) {
       const count = draftedTeams[team.id] || 0;
       const picksLeft = 2 - count;
-      const itemClass = picksLeft === 2 ? 'picks-2' : 'picks-1';
-      const badgeText = picksLeft === 2 ? '2 left' : '1 left';
-      const clickHandler = isMyTurn ? `onclick="makePick(${team.id})"` : '';
+      let itemClass, indicator;
 
-      html += `<div class="team-list-item ${itemClass}" ${clickHandler}>
-        <span class="team-seed-num">${team.seed}</span>
-        <span class="team-name-text">${team.name}</span>
-        <span class="team-avail-badge">${badgeText}</span>
+      if (picksLeft === 2) {
+        itemClass = 'picks-2';
+        indicator = '<span class="avail-dot dot-2"></span>';
+      } else if (picksLeft === 1) {
+        itemClass = 'picks-1';
+        indicator = '<span class="avail-dot dot-1"></span>';
+      } else {
+        itemClass = 'unavailable';
+        indicator = '';
+      }
+
+      const clickHandler = isMyTurn && picksLeft > 0 ? `onclick="makePick(${team.id})"` : '';
+
+      html += `<div class="team-mini ${itemClass}" ${clickHandler}>
+        <span class="tm-seed">${team.seed}</span>
+        <span class="tm-name">${team.name}</span>
+        ${indicator}
       </div>`;
     }
 
-    for (const team of unavailable) {
-      html += `<div class="team-list-item unavailable">
-        <span class="team-seed-num">${team.seed}</span>
-        <span class="team-name-text">${team.name}</span>
-      </div>`;
-    }
+    html += '</div>';
   }
 
+  html += '</div>';
   list.innerHTML = html;
 }
 
