@@ -323,4 +323,25 @@ router.post('/simulate-full-draft/:code', (req, res) => {
   }
 });
 
+/**
+ * POST /api/test/reset
+ * Wipes the database (games, contestants, picks, results) and re-seeds teams.
+ * Keeps the server running — no restart needed.
+ */
+router.post('/reset', (req, res) => {
+  try {
+    const db = getDb();
+    db.exec(`
+      DELETE FROM draft_picks;
+      DELETE FROM tournament_results;
+      DELETE FROM contestants;
+      DELETE FROM games;
+    `);
+    res.json({ message: 'Database reset. All games wiped.' });
+  } catch (err) {
+    console.error('reset error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

@@ -642,12 +642,29 @@ async function loadScenarios() {
 }
 
 // ─── Test Mode ───
+async function resetAndReload() {
+  try {
+    await fetch('/api/test/reset', { method: 'POST' });
+    API.clearSession();
+    sessionStorage.removeItem('mm_test_game');
+    document.getElementById('test-toolbar').style.display = 'none';
+    document.getElementById('landing-page').style.display = '';
+    document.getElementById('game-page').style.display = 'none';
+    showToast('Reset! Fresh start.');
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
 async function quickTest() {
   const name = document.getElementById('test-name').value.trim() || 'TestPlayer';
   try {
+    // Wipe any old data first
+    await fetch('/api/test/reset', { method: 'POST' });
+    API.clearSession();
+
     // Create game
     const game = await API.createGame('Test Game', 20);
-    showToast(`Created test game: ${game.gameCode}`);
 
     // Join as human
     const data = await API.join(name, game.gameCode);
