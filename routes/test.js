@@ -78,17 +78,20 @@ router.post('/fill-game/:code', (req, res) => {
  * Pick a random available team with some intelligence — prefer lower seeds.
  * Returns the chosen team or null if none available.
  */
-function pickSmartTeam(db, code) {
+function pickSmartTeam(db, code, contestantId) {
   const available = db
     .prepare(
       `SELECT t.*
        FROM teams t
        LEFT JOIN draft_picks dp ON dp.team_id = t.id AND dp.game_id = ?
+       WHERE t.id NOT IN (
+         SELECT team_id FROM draft_picks WHERE game_id = ? AND contestant_id = ?
+       )
        GROUP BY t.id
        HAVING COUNT(dp.id) < 2
        ORDER BY t.seed, t.region`
     )
-    .all(code);
+    .all(code, code, contestantId);
 
   if (available.length === 0) return null;
 
@@ -129,7 +132,7 @@ function makeAutoPick(db, code) {
 
   if (!contestant) return null;
 
-  const team = pickSmartTeam(db, code);
+  const team = pickSmartTeam(db, code, contestant.id);
   if (!team) return null;
 
   db.prepare(
