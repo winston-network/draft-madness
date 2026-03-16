@@ -675,7 +675,7 @@ input:focus {
 .draft-round.current { flex: 1; }
 
 .draft-round.current .round-header {
-  background: linear-gradient(180deg, var(--orange), var(--orange-dark));
+  background: linear-gradient(180deg, var(--success), #059669);
   color: white;
   font-size: 0.85rem;
   width: 22px;
@@ -685,8 +685,8 @@ input:focus {
 .draft-round.current .round-picks {
   gap: 2px;
   padding: 3px;
-  background: rgba(244,121,32,0.06);
-  border: 2px solid var(--orange);
+  background: rgba(16,185,129,0.06);
+  border: 2px solid var(--success);
   border-left: none;
   border-radius: 0 4px 4px 0;
 }
@@ -759,8 +759,8 @@ input:focus {
 }
 
 .pick-cell.current-pick {
-  background: linear-gradient(135deg, rgba(244,121,32,0.1), rgba(244,121,32,0.2));
-  border: 2px solid var(--orange);
+  background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.2));
+  border: 2px solid var(--success);
   animation: currentPulse 2s ease-in-out infinite;
 }
 
@@ -852,8 +852,8 @@ input:focus {
 }
 
 @keyframes currentPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(244,121,32,0.35); }
-  50% { box-shadow: 0 0 0 6px rgba(244,121,32,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
 }
 
 /* ═══════════════════════════════════════════
