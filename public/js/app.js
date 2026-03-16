@@ -194,9 +194,23 @@ async function loadDraft() {
     const state = await API.getDraftState(session.gameCode);
     draftState = state;
     renderDraftGrid(state);
-    renderAvailableTeams(state);
     updateStatusBar();
     connectSSE();
+
+    // After draft complete: swap sidebar to leaderboard
+    const teamsCard = document.getElementById('sidebar-teams-card');
+    const sidebarLB = document.getElementById('sidebar-leaderboard');
+    const draftComplete = state.currentPick.isComplete || state.game.status === 'active' || state.game.status === 'complete';
+
+    if (draftComplete && teamsCard && sidebarLB) {
+      teamsCard.style.display = 'none';
+      sidebarLB.style.display = '';
+      loadSidebarLeaderboard();
+    } else {
+      if (teamsCard) teamsCard.style.display = '';
+      if (sidebarLB) sidebarLB.style.display = 'none';
+      renderAvailableTeams(state);
+    }
 
     // Fetch and start countdown timer if draft is active
     if (state.game.status === 'drafting' && !state.currentPick.isComplete) {
@@ -453,7 +467,7 @@ function updateStatusBar() {
 
   if (draftState.currentPick.isComplete) {
     bar.className = 'status-bar complete';
-    statusText.textContent = 'Draft complete! Check the Leaderboard.';
+    statusText.textContent = 'Draft complete! Scores are live.';
     if (timerEl) timerEl.textContent = '';
     if (pauseBtn) pauseBtn.style.display = 'none';
     stopCountdown();
@@ -596,11 +610,14 @@ function renderPrizes(prizes) {
   `;
 }
 
-function renderLeaderboard(data) {
+function renderLeaderboard(data, headId, bodyId) {
   const { standings, roundsPlayed, championshipComplete, roundLabels } = data;
 
+  const head = document.getElementById(headId || 'leaderboard-head');
+  const body = document.getElementById(bodyId || 'leaderboard-body');
+  if (!head || !body) return;
+
   // Build header — always show all 6 round columns
-  const head = document.getElementById('leaderboard-head');
   const roundCols = [1, 2, 3, 4, 5, 6];
   head.innerHTML = `<tr>
     <th class="lb-rank">#</th>
@@ -617,11 +634,9 @@ function renderLeaderboard(data) {
   </tr>`;
 
   // Build rows
-  const body = document.getElementById('leaderboard-body');
   body.innerHTML = standings
     .map((s, i) => {
       const rank = i + 1;
-      // Only show medals when championship is complete
       const showMedal = championshipComplete && rank <= 3;
       const rankClass = showMedal ? `rank-${rank}` : '';
       const rowClass = showMedal ? `place-${rank}` : '';
@@ -644,6 +659,18 @@ function renderLeaderboard(data) {
       </tr>`;
     })
     .join('');
+}
+
+async function loadSidebarLeaderboard() {
+  const session = API.getSession();
+  if (!session.gameCode) return;
+  try {
+    const data = await API.getLeaderboard(session.gameCode);
+    lastLeaderboardData = data;
+    renderLeaderboard(data, 'sidebar-leaderboard-head', 'sidebar-leaderboard-body');
+    // Also update the main leaderboard tab if it exists
+    renderLeaderboard(data);
+  } catch (_) {}
 }
 
 async function showTeamDetail(contestantId, name) {
@@ -797,8 +824,9 @@ async function testSimulateTournamentRound() {
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.error || 'Simulate failed');
     showToast(data.message + (data.complete ? ' — Tournament complete!' : ''));
-    // Switch to leaderboard to see updated scores
-    switchTab('scores');
+    // Refresh sidebar leaderboard + main tab
+    loadSidebarLeaderboard();
+    switchTab('draft');
   } catch (e) {
     showToast(e.message);
   }

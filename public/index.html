@@ -135,11 +135,22 @@
             <div id="draft-rounds-container"></div>
           </div>
         </div>
-        <!-- Right: Available teams sidebar -->
-        <div class="draft-sidebar">
-          <div class="card">
+        <!-- Right: Available teams sidebar (during draft) / Leaderboard (after draft) -->
+        <div class="draft-sidebar" id="draft-sidebar-panel">
+          <div class="card" id="sidebar-teams-card">
             <h2>Available Teams</h2>
             <div class="teams-list" id="teams-list"></div>
+          </div>
+          <div id="sidebar-leaderboard" style="display:none; height:100%; overflow-y:auto;">
+            <div class="card leaderboard-card" style="margin-bottom:0; height:100%; display:flex; flex-direction:column;">
+              <h2>Leaderboard</h2>
+              <div class="leaderboard-scroll" style="flex:1; min-height:0;">
+                <table class="leaderboard-table">
+                  <thead id="sidebar-leaderboard-head"></thead>
+                  <tbody id="sidebar-leaderboard-body"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
