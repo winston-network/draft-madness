@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 160">
+  <defs>
+    <linearGradient id="crimson" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#da1f26"/>
+      <stop offset="50%" style="stop-color:#ff2d35"/>
+      <stop offset="100%" style="stop-color:#da1f26"/>
+    </linearGradient>
+    <linearGradient id="chrome" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="40%" style="stop-color:#e8ecf2"/>
+      <stop offset="100%" style="stop-color:#98a8c0"/>
+    </linearGradient>
+    <linearGradient id="gold-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f5c842; stop-opacity:0"/>
+      <stop offset="15%" style="stop-color:#f5c842"/>
+      <stop offset="85%" style="stop-color:#e8a825"/>
+      <stop offset="100%" style="stop-color:#e8a825; stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="ball" x1="25%" y1="10%" x2="75%" y2="90%">
+      <stop offset="0%" style="stop-color:#ffA050"/>
+      <stop offset="35%" style="stop-color:#ff7830"/>
+      <stop offset="70%" style="stop-color:#e85a10"/>
+      <stop offset="100%" style="stop-color:#c04008"/>
+    </linearGradient>
+    <filter id="glow-red">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feFlood flood-color="#ff2d35" flood-opacity="0.5"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="txt-shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000060"/>
+    </filter>
+    <filter id="ball-shadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#ff6b3560"/>
+    </filter>
+    <clipPath id="bc"><circle cx="0" cy="0" r="46"/></clipPath>
+  </defs>
+
+  <!-- Basketball — clean, realistic -->
+  <g transform="translate(80, 80)" filter="url(#ball-shadow)">
+    <circle cx="0" cy="0" r="46" fill="url(#ball)"/>
+    <!-- Seams -->
+    <g clip-path="url(#bc)" stroke="#9a3500" stroke-opacity="0.55" fill="none">
+      <path d="M-46,0 C-22,-22 22,-22 46,0" stroke-width="2.8"/>
+      <path d="M-46,0 C-22,22 22,22 46,0" stroke-width="2.8"/>
+      <line x1="0" y1="-46" x2="0" y2="46" stroke-width="2.8"/>
+      <path d="M-33,-34 C-13,-6 -13,6 -33,34" stroke-width="2"/>
+      <path d="M33,-34 C13,-6 13,6 33,34" stroke-width="2"/>
+    </g>
+    <!-- Highlight -->
+    <ellipse cx="-12" cy="-14" rx="22" ry="18" fill="white" opacity="0.15"/>
+    <circle cx="0" cy="0" r="45" fill="none" stroke="#ffb87a" stroke-width="0.8" opacity="0.3"/>
+  </g>
+
+  <!-- DRAFT -->
+  <text x="148" y="72" font-family="'Arial Black','Impact','Helvetica Neue',sans-serif" font-size="72" font-weight="900" fill="url(#chrome)" letter-spacing="8" filter="url(#txt-shadow)">DRAFT</text>
+
+  <!-- Gold divider -->
+  <rect x="148" y="82" width="380" height="4" rx="2" fill="url(#gold-line)"/>
+
+  <!-- MADNESS -->
+  <text x="148" y="142" font-family="'Arial Black','Impact','Helvetica Neue',sans-serif" font-size="60" font-weight="900" fill="url(#crimson)" letter-spacing="10" filter="url(#glow-red)">MADNESS</text>
+
+  <!-- 2026 pill -->
+  <rect x="540" y="108" width="52" height="24" rx="5" fill="#da1f26"/>
+  <text x="566" y="126" text-anchor="middle" font-family="'Arial Black',sans-serif" font-size="14" font-weight="900" fill="white" letter-spacing="1.5">2026</text>
+</svg>
