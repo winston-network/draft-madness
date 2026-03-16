@@ -97,11 +97,10 @@ body {
 }
 
 .header-logo {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 12px rgba(244,121,32,0.15);
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(244,121,32,0.4));
 }
 
 .header-title {
@@ -152,7 +151,7 @@ body {
   backdrop-filter: blur(8px);
   padding: 0.3rem 0.8rem;
   border-radius: var(--radius-sm);
-  font-family: 'Inter', monospace;
+  font-family: 'Orbitron', monospace;
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 3px;
@@ -502,7 +501,7 @@ input:focus {
    ═══════════════════════════════════════════ */
 .game-code-display-large {
   font-size: 2.5rem;
-  font-family: 'Inter', monospace;
+  font-family: 'Orbitron', monospace;
   letter-spacing: 6px;
   color: var(--orange);
   font-weight: 800;
@@ -936,21 +935,35 @@ input:focus {
 .avail-dot.dot-2 { background: var(--success); box-shadow: 0 0 4px rgba(16,185,129,0.4); }
 .avail-dot.dot-1 { background: var(--warning); box-shadow: 0 0 4px rgba(245,158,11,0.4); }
 
-.team-mini.picks-2 { color: var(--text); }
+/* 2 picks available — green tint */
+.team-mini.picks-2 {
+  background: rgba(16,185,129,0.1);
+  color: #6ee7b7;
+}
 
+.team-mini.picks-2 .tm-seed { background: var(--success); color: #064e3b; }
+.team-mini.picks-2 .tm-name { color: #6ee7b7; }
+
+/* 1 pick available — yellow tint */
 .team-mini.picks-1 {
   background: rgba(245,158,11,0.1);
   color: #fbbf24;
 }
 
 .team-mini.picks-1 .tm-seed { background: var(--warning); color: #78350f; }
+.team-mini.picks-1 .tm-name { color: #fbbf24; }
 
+/* Unavailable — faded with subtle strikethrough */
 .team-mini.unavailable {
-  opacity: 0.25;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
-.team-mini.unavailable .tm-name { text-decoration: line-through; }
+.team-mini.unavailable .tm-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,255,255,0.2);
+  color: var(--text-muted);
+}
 
 /* Not your turn */
 .draft-sidebar.locked .team-mini:not(.unavailable) {
@@ -1051,21 +1064,24 @@ input:focus {
 .rank-2 { background: linear-gradient(135deg, #cbd5e1, #94a3b8); color: white; box-shadow: 0 2px 6px rgba(148,163,184,0.4); }
 .rank-3 { background: linear-gradient(135deg, #fdba74, #f97316); color: white; box-shadow: 0 2px 6px rgba(249,115,22,0.4); }
 
-/* Round score cells */
+/* Round score cells — digital scoreboard */
 .round-pts {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem;
+  font-weight: 500;
   color: var(--text-muted);
 }
 
 .round-pts.has-pts {
   color: var(--orange-light);
-  font-weight: 800;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(244,121,32,0.3);
 }
 
 .round-tbd {
-  color: rgba(255,255,255,0.1);
-  font-size: 0.72rem;
+  font-family: 'Orbitron', monospace;
+  color: rgba(255,255,255,0.08);
+  font-size: 0.65rem;
 }
 
 td.round-pending {
@@ -1078,18 +1094,22 @@ td.round-pending {
   );
 }
 
-/* Total score */
+/* Total score — digital scoreboard */
 .score-value {
+  font-family: 'Orbitron', monospace;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--orange);
+  text-shadow: 0 0 10px rgba(244,121,32,0.4);
 }
 
 /* Teams alive */
 .alive-count {
+  font-family: 'Orbitron', monospace;
   font-weight: 700;
   color: var(--success);
-  font-size: 0.88rem;
+  font-size: 0.82rem;
+  text-shadow: 0 0 6px rgba(16,185,129,0.3);
 }
 
 .alive-of {
@@ -1234,9 +1254,11 @@ td.round-pending {
 }
 
 .prize-card .amount {
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: var(--orange);
+  text-shadow: 0 0 10px rgba(244,121,32,0.3);
 }
 
 /* ═══════════════════════════════════════════
@@ -1292,8 +1314,8 @@ td.round-pending {
    DRAFT TIMER
    ═══════════════════════════════════════════ */
 .timer-display {
-  font-family: 'Inter', monospace;
-  font-weight: 800;
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
   font-size: 1.1rem;
   padding: 0.2rem 0.65rem;
   border-radius: 6px;

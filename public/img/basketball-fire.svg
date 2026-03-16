@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Fire trail -->
+  <path d="M32 58c-3-4-8-10-10-18-1-5 0-9 3-13 2 4 5 6 8 6s6-2 8-6c3 4 4 8 3 13-2 8-7 14-10 18z" fill="url(#fire1)" opacity="0.9"/>
+  <path d="M32 62c-2-3-6-8-7-14-1-4 0-7 2-10 2 3 4 5 6 5s4-2 6-5c2 3 3 6 2 10-1 6-5 11-7 14z" fill="url(#fire2)" opacity="0.8"/>
+  <!-- Basketball -->
+  <circle cx="32" cy="28" r="18" fill="url(#ball)"/>
+  <!-- Seam lines -->
+  <path d="M14 28h36" stroke="#c45a10" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 10v36" stroke="#c45a10" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M20 12c4 5 6 10 6 16s-2 11-6 16" stroke="#c45a10" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M44 12c-4 5-6 10-6 16s2 11 6 16" stroke="#c45a10" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Highlight -->
+  <ellipse cx="24" cy="20" rx="5" ry="3" fill="rgba(255,255,255,0.2)" transform="rotate(-20 24 20)"/>
+  <defs>
+    <radialGradient id="ball" cx="0.4" cy="0.35" r="0.6">
+      <stop offset="0%" stop-color="#ff9240"/>
+      <stop offset="50%" stop-color="#f47920"/>
+      <stop offset="100%" stop-color="#d96510"/>
+    </radialGradient>
+    <linearGradient id="fire1" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#f47920"/>
+      <stop offset="40%" stop-color="#ff6b35"/>
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fire2" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#ff9240"/>
+      <stop offset="100%" stop-color="#f5c842" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>

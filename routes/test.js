@@ -344,4 +344,127 @@ router.post('/reset', (req, res) => {
   }
 });
 
+/**
+ * POST /api/test/simulate-tournament-round/:code
+ * Simulates one tournament round. Each call advances the tournament by one round.
+ * Round 1: 64→32, Round 2: 32→16, ... Round 6: Championship.
+ * Teams that won previous rounds play in the next round.
+ * Uses seed-weighted randomness (lower seeds more likely to win).
+ */
+router.post('/simulate-tournament-round/:code', (req, res) => {
+  try {
+    const db = getDb();
+    const code = req.params.code.toUpperCase();
+
+    const game = db.prepare('SELECT * FROM games WHERE id = ?').get(code);
+    if (!game) return res.status(404).json({ error: 'Game not found' });
+    if (game.status !== 'active') {
+      return res.status(400).json({ error: 'Game must be in active status (draft complete)' });
+    }
+
+    // Figure out current tournament round
+    const lastRound = db
+      .prepare('SELECT MAX(tournament_round) as r FROM tournament_results')
+      .get();
+    const nextRound = (lastRound.r || 0) + 1;
+
+    if (nextRound > 6) {
+      return res.json({ message: 'Tournament is already complete', round: 6, complete: true });
+    }
+
+    // Get teams that should play this round
+    let teamsInRound;
+    if (nextRound === 1) {
+      // All 64 teams play round 1
+      teamsInRound = db.prepare('SELECT * FROM teams ORDER BY region, seed').all();
+    } else {
+      // Teams that won the previous round
+      teamsInRound = db
+        .prepare(
+          `SELECT t.* FROM teams t
+           JOIN tournament_results tr ON tr.team_id = t.id
+           WHERE tr.tournament_round = ? AND tr.won = 1
+           ORDER BY t.region, t.seed`
+        )
+        .all(nextRound - 1);
+    }
+
+    // Pair them up and simulate matchups
+    const results = [];
+    const insertResult = db.prepare(
+      `INSERT OR REPLACE INTO tournament_results (team_id, tournament_round, won, game_score, opponent_score)
+       VALUES (?, ?, ?, ?, ?)`
+    );
+
+    const simulate = db.transaction(() => {
+      // Shuffle within regions for matchups, then pair adjacent teams
+      // In round 1, pair by seed (1v16, 2v15, etc.)
+      const paired = [];
+
+      if (nextRound === 1) {
+        // Standard bracket: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15 per region
+        const regions = ['East', 'West', 'South', 'Midwest'];
+        const bracketOrder = [
+          [1,16], [8,9], [5,12], [4,13], [6,11], [3,14], [7,10], [2,15]
+        ];
+        for (const region of regions) {
+          const regionTeams = teamsInRound.filter(t => t.region === region);
+          for (const [s1, s2] of bracketOrder) {
+            const t1 = regionTeams.find(t => t.seed === s1);
+            const t2 = regionTeams.find(t => t.seed === s2);
+            if (t1 && t2) paired.push([t1, t2]);
+          }
+        }
+      } else {
+        // Pair consecutively from sorted list
+        for (let i = 0; i < teamsInRound.length - 1; i += 2) {
+          paired.push([teamsInRound[i], teamsInRound[i + 1]]);
+        }
+      }
+
+      for (const [teamA, teamB] of paired) {
+        // Seed-weighted: lower seed = higher chance of winning
+        // Upset factor increases in later rounds for drama
+        const upsetBoost = 1 + (nextRound - 1) * 0.15;
+        const weightA = (17 - teamA.seed) * upsetBoost + Math.random() * 8;
+        const weightB = (17 - teamB.seed) * upsetBoost + Math.random() * 8;
+        const aWins = weightA >= weightB;
+
+        // Generate realistic scores
+        const baseScore = 55 + Math.floor(Math.random() * 25);
+        const margin = 1 + Math.floor(Math.random() * 18);
+        const winnerScore = baseScore + margin;
+        const loserScore = baseScore;
+
+        insertResult.run(teamA.id, nextRound, aWins ? 1 : 0, aWins ? winnerScore : loserScore, aWins ? loserScore : winnerScore);
+        insertResult.run(teamB.id, nextRound, aWins ? 0 : 1, aWins ? loserScore : winnerScore, aWins ? winnerScore : loserScore);
+
+        results.push({
+          winner: aWins ? teamA.name : teamB.name,
+          loser: aWins ? teamB.name : teamA.name,
+          score: `${winnerScore}-${loserScore}`,
+        });
+      }
+    });
+
+    simulate();
+
+    // If championship just finished, update game status
+    if (nextRound === 6) {
+      db.prepare("UPDATE games SET status = 'complete' WHERE id = ?").run(code);
+    }
+
+    res.json({
+      message: `Simulated tournament round ${nextRound}`,
+      round: nextRound,
+      matchups: results.length,
+      results,
+      complete: nextRound === 6,
+    });
+  } catch (err) {
+    console.error('simulate-tournament-round error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

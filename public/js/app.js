@@ -719,6 +719,20 @@ async function testAutoPickAll() {
   }
 }
 
+async function testSimulateTournamentRound() {
+  const session = API.getSession();
+  try {
+    const resp = await fetch('/api/test/simulate-tournament-round/' + session.gameCode, { method: 'POST' });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Simulate failed');
+    showToast(data.message + (data.complete ? ' — Tournament complete!' : ''));
+    // Switch to leaderboard to see updated scores
+    switchTab('scores');
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
 // ─── Init ───
 (function init() {
   const session = API.getSession();
