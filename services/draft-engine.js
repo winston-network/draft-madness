@@ -75,6 +75,17 @@ function validatePick(db, gameId, contestantId, teamId) {
     return { valid: false, error: 'Team has already been drafted twice' };
   }
 
+  // Check this contestant doesn't already have this team
+  const alreadyOwned = db
+    .prepare(
+      'SELECT COUNT(*) as c FROM draft_picks WHERE game_id = ? AND contestant_id = ? AND team_id = ?'
+    )
+    .get(gameId, contestantId, teamId);
+
+  if (alreadyOwned.c > 0) {
+    return { valid: false, error: 'You already drafted this team' };
+  }
+
   // Check it's this contestant's turn
   const pickCount = db
     .prepare('SELECT COUNT(*) as c FROM draft_picks WHERE game_id = ?')

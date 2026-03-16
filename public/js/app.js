@@ -350,8 +350,10 @@ function renderAvailableTeams(state) {
 
   // Track how many times each team has been drafted
   const draftedTeams = {};
+  const myTeams = new Set();
   state.picks.forEach((p) => {
     draftedTeams[p.team_id] = (draftedTeams[p.team_id] || 0) + 1;
+    if (p.contestant_id === session.contestantId) myTeams.add(p.team_id);
   });
 
   // Build a full team list from availableTeams (< 2 picks) plus fully drafted ones from picks
@@ -394,20 +396,22 @@ function renderAvailableTeams(state) {
     for (const team of regionTeams) {
       const count = draftedTeams[team.id] || 0;
       const picksLeft = 2 - count;
+      const iOwnIt = myTeams.has(team.id);
       let itemClass, indicator;
 
-      if (picksLeft === 2) {
-        itemClass = 'picks-2';
-        indicator = '<span class="avail-dot dot-2"></span>';
+      if (picksLeft <= 0 || iOwnIt) {
+        itemClass = 'unavailable';
+        indicator = '';
       } else if (picksLeft === 1) {
         itemClass = 'picks-1';
         indicator = '<span class="avail-dot dot-1"></span>';
       } else {
-        itemClass = 'unavailable';
-        indicator = '';
+        itemClass = 'picks-2';
+        indicator = '<span class="avail-dot dot-2"></span>';
       }
 
-      const clickHandler = isMyTurn && picksLeft > 0 ? `onclick="makePick(${team.id})"` : '';
+      const canPick = isMyTurn && picksLeft > 0 && !iOwnIt;
+      const clickHandler = canPick ? `onclick="makePick(${team.id})"` : '';
 
       html += `<div class="team-mini ${itemClass}" ${clickHandler}>
         <span class="tm-seed">${team.seed}</span>
