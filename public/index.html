@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Draft Madness</title>
   <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=__BUILD__">
 </head>
 <body>
@@ -16,27 +18,10 @@
       <p class="landing-tagline">Draft your teams. Track your scores. Win the pot.</p>
       <p class="landing-subtitle">Indianapolis 2026 &bull; Final Four &bull; Lucas Oil Stadium</p>
       <div class="landing-forms">
-        <div class="card">
-          <h2>Create a Game</h2>
-          <input type="text" id="create-name" placeholder="Game name (e.g. Office Pool 2026)">
-          <input type="number" id="create-buyin" placeholder="Buy-in amount ($)" min="0" step="5">
-          <button class="btn btn-primary btn-lg" onclick="createGame()" style="width:100%">Create Game</button>
-        </div>
-        <div class="card">
-          <h2>Join a Game</h2>
-          <input type="text" id="join-code" placeholder="Enter game code" maxlength="6" style="text-transform:uppercase; letter-spacing:3px; text-align:center; font-size:1.3rem; font-weight:700">
-          <input type="text" id="join-name" placeholder="Your name">
-          <button class="btn btn-accent btn-lg" onclick="joinGame()" style="width:100%">Join Game</button>
-        </div>
-      </div>
-
-      <!-- Quick Test Mode (dev only) -->
-      <div class="test-tools" id="test-tools">
-        <div class="card" style="max-width:400px; margin:1.5rem auto 0">
-          <h2 style="font-size:0.9rem">Quick Test Mode</h2>
-          <p style="font-size:0.82rem; margin-bottom:0.75rem; opacity:0.6">Creates a game, adds 7 bots, and joins you in.</p>
+        <div class="card" style="max-width:400px; margin:0 auto">
+          <p style="font-size:0.9rem; margin-bottom:0.75rem; opacity:0.7">Creates a game, adds 7 bots, and joins you in.</p>
           <input type="text" id="test-name" placeholder="Your name" value="TestPlayer">
-          <button class="btn btn-accent" onclick="quickTest()" style="width:100%">Launch Test Game</button>
+          <button class="btn btn-accent btn-lg" onclick="quickTest()" style="width:100%">Launch Test Game</button>
         </div>
       </div>
     </div>
@@ -46,8 +31,11 @@
   <div id="game-page" style="display:none">
     <div class="header">
       <div class="header-brand">
-        <img src="/img/favicon.svg" alt="" class="header-icon">
-        <h1>Draft Madness</h1>
+        <img src="/img/logo-main.jpg" alt="Draft Madness" class="header-logo">
+        <div class="header-title">
+          <h1>Draft <span>Madness</span></h1>
+          <p class="header-sub">March Madness Gaming</p>
+        </div>
       </div>
       <div class="header-right">
         <span class="player-badge" id="player-name-display"></span>
@@ -71,7 +59,7 @@
       <div class="card">
         <h2>Game: <span id="lobby-game-name"></span></h2>
         <p style="margin-bottom:0.75rem; color:var(--text-secondary); font-weight:500">
-          Buy-in: <strong style="color:var(--primary); font-size:1.1rem">$<span id="lobby-buyin">0</span></strong>
+          Buy-in: <strong style="color:var(--orange); font-size:1.1rem">$<span id="lobby-buyin">0</span></strong>
         </p>
         <p style="margin-bottom:0.75rem; color:var(--text-muted); font-size:0.85rem">Share this code with your friends:</p>
         <div style="text-align:center; margin-bottom:1.25rem">
