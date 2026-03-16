@@ -513,6 +513,7 @@ async function loadLeaderboard() {
 
 function renderPrizes(prizes) {
   const el = document.getElementById('prizes-display');
+  if (!el) return;
   el.innerHTML = `
     <div class="prize-card first">
       <div class="place">1st Place</div>
