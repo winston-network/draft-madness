@@ -491,14 +491,17 @@ function connectSSE() {
 }
 
 // ─── Leaderboard ───
+let lastLeaderboardData = null;
+
 async function loadLeaderboard() {
   const session = API.getSession();
   if (!session.gameCode) return;
 
   try {
     const data = await API.getLeaderboard(session.gameCode);
+    lastLeaderboardData = data;
     renderPrizes(data.prizes);
-    renderLeaderboard(data.scores);
+    renderLeaderboard(data);
   } catch (e) {
     showToast(e.message);
   }
@@ -522,32 +525,59 @@ function renderPrizes(prizes) {
   `;
 }
 
-function renderLeaderboard(scores) {
+function renderLeaderboard(data) {
+  const { standings, roundsPlayed, championshipComplete, roundLabels } = data;
+
+  // Build header — always show all 6 round columns
+  const head = document.getElementById('leaderboard-head');
+  const roundCols = [1, 2, 3, 4, 5, 6];
+  head.innerHTML = `<tr>
+    <th class="lb-rank">#</th>
+    <th class="lb-name">Contestant</th>
+    ${roundCols
+      .map((r) => {
+        const played = roundsPlayed.includes(r);
+        const cls = played ? '' : 'round-pending';
+        return `<th class="lb-round ${cls}">${roundLabels[r]}</th>`;
+      })
+      .join('')}
+    <th class="lb-total">Total</th>
+    <th class="lb-alive">Alive</th>
+  </tr>`;
+
+  // Build rows
   const body = document.getElementById('leaderboard-body');
-  body.innerHTML = scores
+  body.innerHTML = standings
     .map((s, i) => {
       const rank = i + 1;
-      const rankClass = rank <= 3 ? `rank-${rank}` : '';
-      const teamsAlive = s.teams.filter((t) => {
-        const rounds = Object.values(t.rounds);
-        return rounds.length === 0 || !rounds.some((r) => !r.won);
-      }).length;
+      // Only show medals when championship is complete
+      const showMedal = championshipComplete && rank <= 3;
+      const rankClass = showMedal ? `rank-${rank}` : '';
+      const rowClass = showMedal ? `place-${rank}` : '';
 
-      return `<tr onclick="showTeamDetail(${s.contestantId}, '${s.name.replace(/'/g, "\\'")}')">
-        <td><span class="rank-badge ${rankClass}">${rank}</span></td>
-        <td><strong>${s.name}</strong></td>
-        <td><span class="score-value">${s.score}</span></td>
-        <td>${teamsAlive}/16</td>
-        <td>${s.tiebreakerScore != null ? s.tiebreakerScore : '—'}</td>
+      const roundCells = roundCols
+        .map((r) => {
+          const pts = s.roundScores[r] || 0;
+          const played = roundsPlayed.includes(r);
+          if (!played) return `<td class="lb-round round-pending"><span class="round-tbd">—</span></td>`;
+          return `<td class="lb-round"><span class="round-pts${pts > 0 ? ' has-pts' : ''}">${pts}</span></td>`;
+        })
+        .join('');
+
+      return `<tr class="${rowClass}" onclick="showTeamDetail(${s.contestantId}, '${s.name.replace(/'/g, "\\'")}')">
+        <td class="lb-rank"><span class="rank-badge ${rankClass}">${showMedal ? ['', '&#9679;', '&#9679;', '&#9679;'][rank] : rank}</span></td>
+        <td class="lb-name"><strong>${s.name}</strong></td>
+        ${roundCells}
+        <td class="lb-total"><span class="score-value">${s.score}</span></td>
+        <td class="lb-alive"><span class="alive-count">${s.teamsAlive}<span class="alive-of">/16</span></span></td>
       </tr>`;
     })
     .join('');
 }
 
 async function showTeamDetail(contestantId, name) {
-  const session = API.getSession();
-  const data = await API.getLeaderboard(session.gameCode);
-  const contestant = data.scores.find((s) => s.contestantId === contestantId);
+  if (!lastLeaderboardData) return;
+  const contestant = lastLeaderboardData.standings.find((s) => s.contestantId === contestantId);
   if (!contestant) return;
 
   const card = document.getElementById('team-details-card');
@@ -556,10 +586,17 @@ async function showTeamDetail(contestantId, name) {
 
   const grid = document.getElementById('team-detail-grid');
   grid.innerHTML = contestant.teams
+    .sort((a, b) => b.points - a.points || a.seed - b.seed)
     .map((t) => {
-      const hasLoss = Object.values(t.rounds).some((r) => !r.won);
-      const cls = hasLoss ? 'mini-team-card eliminated' : 'mini-team-card';
+      const cls = t.eliminated ? 'mini-team-card eliminated' : 'mini-team-card';
+      const logoUrl = t.espnId
+        ? `https://a.espncdn.com/i/teamlogos/ncaa/500/${t.espnId}.png`
+        : '';
+      const logoHtml = logoUrl
+        ? `<img src="${logoUrl}" alt="" style="width:28px;height:28px;object-fit:contain;margin-bottom:2px">`
+        : '';
       return `<div class="${cls}">
+        ${logoHtml}
         <div><strong>(${t.seed}) ${t.name}</strong></div>
         <div style="color:var(--text-muted); font-size:0.72rem">${t.region}</div>
         <div class="pts">${t.points} pts</div>

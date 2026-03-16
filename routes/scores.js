@@ -13,10 +13,10 @@ router.get('/:code/leaderboard', (req, res) => {
   const game = db.prepare('SELECT * FROM games WHERE id = ?').get(code);
   if (!game) return res.status(404).json({ error: 'Game not found' });
 
-  const scores = calculateScores(db, code);
+  const scoreData = calculateScores(db, code);
   const prizes = calculatePrizes(game.buy_in, 8);
 
-  res.json({ scores, prizes, gameStatus: game.status });
+  res.json({ ...scoreData, prizes, gameStatus: game.status });
 });
 
 // GET /api/scores/:code/scenarios
