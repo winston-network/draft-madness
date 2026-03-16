@@ -715,7 +715,11 @@ async function testAutoPickAll() {
         }
       })
       .catch(() => {
+        // Server doesn't recognize this session (DB was wiped, etc.)
         API.clearSession();
+        sessionStorage.removeItem('mm_test_game');
+        document.getElementById('landing-page').style.display = '';
+        document.getElementById('game-page').style.display = 'none';
       });
   }
 })();
