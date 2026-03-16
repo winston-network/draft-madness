@@ -831,8 +831,8 @@ input:focus {
 
 .draft-col-header {
   text-align: center;
-  font-size: 0.62rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 800;
   color: var(--text-secondary);
   padding: 0.25rem 0.1rem;
   background: rgba(255,255,255,0.04);
