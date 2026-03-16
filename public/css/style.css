@@ -308,7 +308,7 @@ input:focus {
 .btn-lg { padding: 1rem 2.5rem; font-size: 1.05rem; border-radius: var(--radius-md); }
 
 /* ═══════════════════════════════════════════
-   LANDING PAGE — Broadcast-quality dark hero
+   LANDING PAGE — Arena experience
    ═══════════════════════════════════════════ */
 .landing {
   display: flex;
@@ -318,50 +318,84 @@ input:focus {
   min-height: 100vh;
   text-align: center;
   padding: 2rem 1.5rem;
+  /* Hardwood floor base with arena lighting */
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(218,31,38,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 20% 80%, rgba(255,107,53,0.08) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 80%, rgba(245,200,66,0.06) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 50%, #0d2137 0%, #060f18 100%);
+    /* Spotlight from above */
+    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+    /* Red glow left */
+    radial-gradient(ellipse at 10% 50%, rgba(218,31,38,0.18) 0%, transparent 40%),
+    /* Red glow right */
+    radial-gradient(ellipse at 90% 50%, rgba(218,31,38,0.12) 0%, transparent 40%),
+    /* Gold warmth bottom */
+    radial-gradient(ellipse at 50% 90%, rgba(245,200,66,0.08) 0%, transparent 40%),
+    /* Hardwood grain texture (repeating gradient) */
+    repeating-linear-gradient(
+      90deg,
+      rgba(139,90,43,0.03) 0px,
+      rgba(160,110,50,0.05) 2px,
+      rgba(120,75,30,0.02) 4px,
+      rgba(140,95,45,0.04) 8px
+    ),
+    /* Base dark with warm undertone */
+    linear-gradient(170deg, #0d1b2a 0%, #1a0f0a 40%, #0d1b2a 100%);
   position: relative;
   overflow: hidden;
 }
 
-/* Basketball court half-circle */
+/* Full basketball court layout */
 .landing::before {
   content: '';
   position: absolute;
-  bottom: -200px;
+  top: 50%;
   left: 50%;
-  width: 800px;
-  height: 800px;
-  transform: translateX(-50%);
-  border: 2px solid rgba(255,255,255,0.04);
-  border-radius: 50%;
+  width: min(90vw, 900px);
+  height: min(55vh, 500px);
+  transform: translate(-50%, -50%);
+  /* Court outline */
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 0;
   pointer-events: none;
+  /* Center circle */
+  background:
+    radial-gradient(circle at 50% 50%, transparent 58px, rgba(255,255,255,0.05) 58px, rgba(255,255,255,0.05) 60px, transparent 60px),
+    radial-gradient(circle at 50% 50%, transparent 18px, rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 20px, transparent 20px),
+    /* Center line */
+    linear-gradient(0deg, transparent calc(50% - 1px), rgba(255,255,255,0.05) calc(50% - 1px), rgba(255,255,255,0.05) calc(50% + 1px), transparent calc(50% + 1px)),
+    /* Free throw circles */
+    radial-gradient(circle at 15% 50%, transparent 38px, rgba(255,255,255,0.04) 38px, rgba(255,255,255,0.04) 40px, transparent 40px),
+    radial-gradient(circle at 85% 50%, transparent 38px, rgba(255,255,255,0.04) 38px, rgba(255,255,255,0.04) 40px, transparent 40px);
 }
 
+/* Three-point arcs */
 .landing::after {
   content: '';
   position: absolute;
-  bottom: -50px;
+  top: 50%;
   left: 50%;
-  width: 260px;
-  height: 260px;
-  transform: translateX(-50%);
-  border: 2px solid rgba(255,255,255,0.03);
-  border-radius: 50%;
+  width: min(90vw, 900px);
+  height: min(55vh, 500px);
+  transform: translate(-50%, -50%);
   pointer-events: none;
+  background:
+    /* Left key/paint */
+    linear-gradient(90deg, transparent 5%, rgba(218,31,38,0.04) 5%, rgba(218,31,38,0.04) 20%, transparent 20%),
+    /* Right key/paint */
+    linear-gradient(90deg, transparent 80%, rgba(218,31,38,0.04) 80%, rgba(218,31,38,0.04) 95%, transparent 95%);
 }
 
-/* Top crimson accent bar */
-.landing-page-wrapper { position: relative; }
+/* Animated particles / arena dust */
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  50% { transform: translateY(-30vh) translateX(20px); }
+}
 
 .landing-logo {
-  width: min(500px, 90vw);
+  width: min(520px, 92vw);
   height: auto;
   margin-bottom: 1.2rem;
-  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.5)) drop-shadow(0 0 60px rgba(218,31,38,0.15));
   animation: logoIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   z-index: 1;
@@ -373,12 +407,13 @@ input:focus {
 }
 
 .landing-tagline {
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.7);
   margin-bottom: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: 1px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
   animation: fadeIn 0.7s ease 0.2s both;
   position: relative;
   z-index: 1;
@@ -391,6 +426,7 @@ input:focus {
   letter-spacing: 3px;
   text-transform: uppercase;
   margin-bottom: 2.5rem;
+  text-shadow: 0 0 20px rgba(245,200,66,0.3);
   animation: fadeIn 0.7s ease 0.35s both;
   position: relative;
   z-index: 1;
@@ -414,9 +450,26 @@ input:focus {
   padding: 2rem;
   position: relative;
   overflow: hidden;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(13,27,42,0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.9);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.landing-forms .card h2 { color: white; }
+
+.landing-forms .card input {
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  color: white;
+}
+
+.landing-forms .card input::placeholder { color: rgba(255,255,255,0.35); }
+
+.landing-forms .card input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(245,200,66,0.15);
 }
 
 .landing-forms .card::before {
