@@ -792,9 +792,18 @@ input:focus {
 .draft-round.current .pick-cell .pick-team { font-size: 0.8rem; font-weight: 900; }
 .draft-round.current .pick-cell .pick-seed { font-size: 0.62rem; }
 
-/* Smaller cells in previous */
-.draft-round.previous .pick-cell .pick-logo { width: 18px; height: 18px; }
-.draft-round.previous .pick-cell .pick-team { font-size: 0.52rem; }
+/* Previous rounds — logo fills the cell */
+.draft-round.previous .pick-cell.filled {
+  padding: 0;
+  position: relative;
+}
+.draft-round.previous .pick-cell .pick-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 2px;
+}
+.draft-round.previous .pick-cell .pick-team { display: none; }
 .draft-round.previous .pick-cell .pick-seed { display: none; }
 
 /* Tiny cells in future */
