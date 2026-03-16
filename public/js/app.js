@@ -302,7 +302,7 @@ function renderDraftGrid(state) {
     if (roundClass === 'future' && round > currentRound + 2) continue;
 
     html += `<div class="draft-round ${roundClass}">`;
-    html += `<div class="round-header">Round ${round}</div>`;
+    html += `<div class="round-header">${round}</div>`;
     html += `<div class="round-picks">`;
 
     // Always render columns 1-8 in order (matching header)

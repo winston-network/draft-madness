@@ -608,20 +608,19 @@ input:focus {
   gap: 2px;
 }
 
-/* Each round is a row: vertical label + 8 pick cells */
+/* Each round is a row: number label + 8 pick cells */
 .draft-round {
   display: flex;
   min-height: 0;
 }
 
-/* Round headers — vertical text on left side */
+/* Round number labels — compact horizontal on left */
 .round-header {
-  writing-mode: vertical-lr;
-  text-orientation: mixed;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  font-weight: 800;
 }
 
 .round-picks {
@@ -639,12 +638,9 @@ input:focus {
 .draft-round.current .round-header {
   background: linear-gradient(180deg, var(--crimson), var(--crimson-dark));
   color: white;
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-size: 0.85rem;
   width: 22px;
-  border-radius: 6px 0 0 6px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  border-radius: 4px 0 0 4px;
 }
 
 .draft-round.current .round-picks {
@@ -653,7 +649,7 @@ input:focus {
   background: rgba(218,31,38,0.04);
   border: 2px solid var(--crimson);
   border-left: none;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 4px 4px 0;
 }
 
 /* Previous round - readable but smaller */
@@ -665,10 +661,9 @@ input:focus {
 .draft-round.previous .round-header {
   background: var(--primary);
   color: white;
-  font-size: 0.55rem;
-  font-weight: 700;
-  width: 16px;
-  border-radius: 4px 0 0 4px;
+  font-size: 0.65rem;
+  width: 22px;
+  border-radius: 3px 0 0 3px;
 }
 
 .draft-round.previous .round-picks {
@@ -677,7 +672,7 @@ input:focus {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-left: none;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 3px 3px 0;
 }
 
 /* Future rounds - minimal */
@@ -689,10 +684,9 @@ input:focus {
 .draft-round.future .round-header {
   background: var(--bg-subtle);
   color: var(--text-muted);
-  font-size: 0.5rem;
-  font-weight: 600;
-  width: 14px;
-  border-radius: 3px 0 0 3px;
+  font-size: 0.55rem;
+  width: 22px;
+  border-radius: 2px 0 0 2px;
   border: 1px solid var(--border);
   border-right: none;
 }
@@ -703,7 +697,7 @@ input:focus {
   background: var(--border-light);
   border: 1px solid var(--border);
   border-left: none;
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 2px 2px 0;
 }
 
 /* Pick cells */
@@ -777,8 +771,7 @@ input:focus {
 
 /* Column headers */
 .draft-columns-header {
-  display: grid;
-  grid-template-columns: 22px repeat(8, 1fr);
+  display: flex;
   gap: 2px;
   margin-bottom: 3px;
   flex-shrink: 0;
@@ -795,11 +788,15 @@ input:focus {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
 }
 
 .draft-col-header:first-child {
   font-size: 0.5rem;
+  font-weight: 800;
   color: var(--text-muted);
+  text-transform: uppercase;
+  flex: 0 0 22px;
 }
 
 @keyframes currentPulse {
