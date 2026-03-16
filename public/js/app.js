@@ -667,10 +667,54 @@ async function loadSidebarLeaderboard() {
   try {
     const data = await API.getLeaderboard(session.gameCode);
     lastLeaderboardData = data;
-    renderLeaderboard(data, 'sidebar-leaderboard-head', 'sidebar-leaderboard-body');
+    renderSidebarLeaderboard(data);
     // Also update the main leaderboard tab if it exists
     renderLeaderboard(data);
   } catch (_) {}
+}
+
+function renderSidebarLeaderboard(data) {
+  const { standings, roundsPlayed, championshipComplete } = data;
+  const head = document.getElementById('sidebar-leaderboard-head');
+  const body = document.getElementById('sidebar-leaderboard-body');
+  if (!head || !body) return;
+
+  // Compact: rank, name, per-round scores (abbreviated), total, alive
+  const roundCols = [1, 2, 3, 4, 5, 6];
+  const shortLabels = { 1: 'R1', 2: 'R2', 3: 'S16', 4: 'E8', 5: 'F4', 6: 'CH' };
+
+  head.innerHTML = `<tr>
+    <th class="lb-rank">#</th>
+    <th class="lb-name">Name</th>
+    ${roundCols.map(r => {
+      const played = roundsPlayed.includes(r);
+      return `<th class="lb-round ${played ? '' : 'round-pending'}" style="width:32px; font-size:0.5rem; padding:0.3rem 0.15rem">${shortLabels[r]}</th>`;
+    }).join('')}
+    <th class="lb-total" style="width:44px">PTS</th>
+    <th style="width:32px; font-size:0.5rem; padding:0.3rem 0.15rem">ALV</th>
+  </tr>`;
+
+  body.innerHTML = standings.map((s, i) => {
+    const rank = i + 1;
+    const showMedal = championshipComplete && rank <= 3;
+    const rankClass = showMedal ? `rank-${rank}` : '';
+    const rowClass = showMedal ? `place-${rank}` : '';
+
+    const roundCells = roundCols.map(r => {
+      const pts = s.roundScores[r] || 0;
+      const played = roundsPlayed.includes(r);
+      if (!played) return `<td class="lb-round round-pending" style="padding:0.25rem 0.1rem"><span class="round-tbd" style="font-size:0.55rem">—</span></td>`;
+      return `<td class="lb-round" style="padding:0.25rem 0.1rem"><span class="round-pts${pts > 0 ? ' has-pts' : ''}" style="font-size:0.8rem">${pts}</span></td>`;
+    }).join('');
+
+    return `<tr class="${rowClass}">
+      <td class="lb-rank" style="padding:0.25rem 0.15rem"><span class="rank-badge ${rankClass}" style="width:22px; height:22px; font-size:0.7rem">${rank}</span></td>
+      <td class="lb-name" style="padding:0.25rem 0.3rem; font-size:0.8rem; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><strong>${s.name}</strong></td>
+      ${roundCells}
+      <td class="lb-total" style="padding:0.25rem 0.15rem"><span class="score-value" style="font-size:0.9rem">${s.score}</span></td>
+      <td style="padding:0.25rem 0.15rem; text-align:center"><span class="alive-count" style="font-size:0.75rem">${s.teamsAlive}</span></td>
+    </tr>`;
+  }).join('');
 }
 
 async function showTeamDetail(contestantId, name) {
