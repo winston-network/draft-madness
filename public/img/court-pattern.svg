@@ -1,81 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800" fill="none">
-  <!-- Half court - coach's whiteboard style -->
 
-  <!-- Paint / Key - filled orange -->
-  <rect x="530" y="60" width="340" height="380" rx="4" fill="rgba(244,121,32,0.06)" stroke="rgba(100,160,255,0.12)" stroke-width="4" stroke-linecap="round"/>
+  <!-- Big sweeping white arrows / play routes -->
+  <g stroke="rgba(255,255,255,0.14)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Large arc top-left sweeping left -->
+    <path d="M350 350 Q200 80 100 150"/>
+    <path d="M108 142 l-18 2 l8 16"/>
 
-  <!-- Free throw semi-circle (bottom of key) -->
-  <path d="M530 440 Q700 560 870 440" stroke="rgba(100,160,255,0.12)" stroke-width="4" fill="rgba(244,121,32,0.04)" stroke-linecap="round"/>
+    <!-- Large arc top-center sweeping up -->
+    <path d="M450 450 Q500 150 550 100"/>
+    <path d="M547 108 l6 -16 l10 14"/>
 
-  <!-- Basket / hoop -->
-  <circle cx="700" cy="95" r="14" stroke="rgba(244,121,32,0.15)" stroke-width="3" fill="none"/>
-  <!-- Backboard -->
-  <line x1="660" y1="68" x2="740" y2="68" stroke="rgba(100,160,255,0.14)" stroke-width="4" stroke-linecap="round"/>
+    <!-- Big right arc -->
+    <path d="M750 300 Q1100 80 1200 250"/>
+    <path d="M1194 242 l12 -10 l-2 16"/>
 
-  <!-- 3-point arc - thick marker stroke -->
-  <path d="M480 60 L480 200 Q700 620 920 200 L920 60" stroke="rgba(100,160,255,0.13)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Crossing curves bottom center -->
+    <path d="M350 550 Q550 700 750 500"/>
+    <path d="M744 506 l12 -10 l-1 15"/>
 
-  <!-- Baseline -->
-  <line x1="200" y1="60" x2="1200" y2="60" stroke="rgba(100,160,255,0.1)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M500 650 Q700 450 900 550"/>
+    <path d="M893 545 l14 2 l-8 13"/>
 
-  <!-- Sidelines -->
-  <line x1="200" y1="60" x2="200" y2="750" stroke="rgba(100,160,255,0.07)" stroke-width="3.5" stroke-linecap="round"/>
-  <line x1="1200" y1="60" x2="1200" y2="750" stroke="rgba(100,160,255,0.07)" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Bottom-left sweep -->
+    <path d="M250 600 Q100 500 150 400"/>
+    <path d="M153 408 l-6 -16 l-12 12"/>
 
-  <!-- Hash marks on key -->
-  <g stroke="rgba(100,160,255,0.08)" stroke-width="3" stroke-linecap="round">
-    <line x1="510" y1="160" x2="530" y2="160"/>
-    <line x1="510" y1="220" x2="530" y2="220"/>
-    <line x1="510" y1="280" x2="530" y2="280"/>
-    <line x1="510" y1="340" x2="530" y2="340"/>
-    <line x1="870" y1="160" x2="890" y2="160"/>
-    <line x1="870" y1="220" x2="890" y2="220"/>
-    <line x1="870" y1="280" x2="890" y2="280"/>
-    <line x1="870" y1="340" x2="890" y2="340"/>
+    <!-- Right side downward -->
+    <path d="M1100 350 Q1250 500 1200 650"/>
+    <path d="M1204 642 l2 16 l-14 -8"/>
+
+    <!-- Small connecting arrow center -->
+    <path d="M650 350 Q700 420 750 400"/>
+    <path d="M744 404 l12 -8 l-4 14"/>
   </g>
 
-  <!-- X marks - bold marker style -->
-  <g stroke="rgba(244,121,32,0.16)" stroke-width="5" stroke-linecap="round">
-    <!-- X near free throw -->
-    <line x1="640" y1="340" x2="680" y2="385"/>
-    <line x1="678" y1="340" x2="642" y2="385"/>
+  <!-- X marks - orange, bold chalk style -->
+  <g stroke="rgba(244,121,32,0.35)" stroke-width="6" stroke-linecap="round">
+    <!-- X top-left -->
+    <line x1="60" y1="100" x2="115" y2="160"/>
+    <line x1="112" y1="98" x2="63" y2="158"/>
 
-    <!-- X near elbow -->
-    <line x1="830" y1="310" x2="870" y2="355"/>
-    <line x1="868" y1="310" x2="832" y2="355"/>
+    <!-- X center-right -->
+    <line x1="1000" y1="280" x2="1055" y2="340"/>
+    <line x1="1052" y1="278" x2="1003" y2="338"/>
 
-    <!-- X at wing -->
-    <line x1="380" y1="440" x2="420" y2="485"/>
-    <line x1="418" y1="440" x2="382" y2="485"/>
+    <!-- X bottom-center -->
+    <line x1="830" y1="620" x2="885" y2="680"/>
+    <line x1="882" y1="618" x2="833" y2="678"/>
+
+    <!-- X bottom-right -->
+    <line x1="1250" y1="650" x2="1305" y2="710"/>
+    <line x1="1302" y1="648" x2="1253" y2="708"/>
   </g>
 
-  <!-- O marks - open circles, marker style -->
-  <g stroke="rgba(244,121,32,0.18)" stroke-width="4" fill="none" stroke-linecap="round">
-    <!-- O at point guard -->
-    <ellipse cx="700" cy="610" rx="20" ry="18"/>
+  <!-- O marks - green, open circles -->
+  <g stroke="rgba(16,185,129,0.35)" stroke-width="5" fill="none" stroke-linecap="round">
+    <!-- O top-center -->
+    <circle cx="650" cy="200" r="25"/>
 
-    <!-- O at wing left -->
-    <ellipse cx="340" cy="530" rx="18" ry="20"/>
+    <!-- O center-right -->
+    <circle cx="900" cy="380" r="22"/>
 
-    <!-- O at wing right -->
-    <ellipse cx="1060" cy="530" rx="19" ry="18"/>
+    <!-- O center -->
+    <circle cx="720" cy="470" r="24"/>
 
-    <!-- O at corner -->
-    <ellipse cx="420" cy="160" rx="17" ry="19"/>
-  </g>
+    <!-- O bottom-left -->
+    <circle cx="180" cy="580" r="26"/>
 
-  <!-- Play arrows - dashed routes with arrowheads -->
-  <g stroke="rgba(244,121,32,0.12)" stroke-width="3" fill="none" stroke-linecap="round">
-    <!-- Point to wing pass -->
-    <line x1="680" y1="600" x2="440" y2="540" stroke-dasharray="12 6"/>
-    <path d="M445 543 l-12 3 l5 -10" fill="rgba(244,121,32,0.12)" stroke="none"/>
-
-    <!-- Wing cut to basket -->
-    <path d="M355 515 Q400 350 640 340" stroke-dasharray="12 6"/>
-    <path d="M636 336 l10 2 l-5 9" fill="rgba(244,121,32,0.12)" stroke="none"/>
-
-    <!-- Drive arrow -->
-    <path d="M1045 515 Q950 400 870 350"/>
-    <path d="M874 354 l-8 -6 l10 -2" fill="rgba(244,121,32,0.12)" stroke="none"/>
+    <!-- O top-right -->
+    <circle cx="1100" cy="130" r="23"/>
   </g>
 </svg>

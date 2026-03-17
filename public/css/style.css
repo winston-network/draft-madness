@@ -68,9 +68,8 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: url('/img/court-pattern.png') center/cover no-repeat;
-  opacity: 0.06;
-  filter: blur(2px) grayscale(0.4);
+  background: url('/img/court-pattern.svg') center/cover no-repeat;
+  filter: blur(1.5px);
   z-index: 0;
   pointer-events: none;
 }
