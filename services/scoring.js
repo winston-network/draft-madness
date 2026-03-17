@@ -4,19 +4,19 @@
  * Points per team win by tournament round:
  *   Round 1 (64→32): 1 point
  *   Round 2 (32→16): 1 point
- *   Round 3 Sweet 16 (16→8): 2 points
+ *   Round 3 Sweet 16 (16→8): 1 point
  *   Round 4 Elite 8 (8→4): 2 points
- *   Round 5 Final Four (4→2): 4 points
- *   Round 6 Championship (2→1): 4 points
+ *   Round 5 Final Four (4→2): 2 points
+ *   Round 6 Championship (2→1): 2 points
  */
 
 const POINTS_BY_ROUND = {
   1: 1,
   2: 1,
-  3: 2,
+  3: 1,
   4: 2,
-  5: 4,
-  6: 4,
+  5: 2,
+  6: 2,
 };
 
 const ROUND_LABELS = {

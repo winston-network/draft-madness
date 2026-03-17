@@ -31,7 +31,7 @@ I'm building **Draft Madness**, a March Madness draft game web app at `/mnt/d/co
 - Single-page view: no tab navigation, lobby → draft board → leaderboard flow in one page
 - Snake draft: odd rounds forward (1-8), even rounds reverse (8-1)
 - Each team can be drafted max 2 times per game (same player can't pick same team twice)
-- Scoring: R1/R2=1pt, Sweet16/Elite8=2pts, Final4/Championship=4pts
+- Scoring: R1/R2/Sweet16=1pt, Elite8/Final4/Championship=2pts
 - 3-minute pick timer, auto-picks on expiry, pause/resume support
 - Draft board: current round green border, all rounds same cell size, logos fill cells
 - After draft completes, sidebar swaps from available teams to inline compact leaderboard

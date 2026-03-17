@@ -10,7 +10,7 @@ A web app for a March Madness draft game. Up to 8 contestants draft NCAA tournam
 - **Snake draft**: Draw straws for order (1-8), then snake (1-8, 8-1, 1-8...) for 16 rounds
 - **64 NCAA teams** available, each can be drafted **max 2 times** (same player can't pick same team twice)
 - Each contestant ends up with **16 teams**
-- **Scoring per team win**: R1=1pt, R2=1pt, Sweet16=2pts, Elite8=2pts, Final4=4pts, Championship=4pts
+- **Scoring per team win**: R1=1pt, R2=1pt, Sweet16=1pt, Elite8=2pts, Final4=2pts, Championship=2pts
 - **Tiebreaker**: Predict total combined score of championship game
 - **Prize pool**: Variable buy-in, split 60/30/10 for 1st/2nd/3rd
 - **Draft timer**: 3 minutes per pick, auto-picks on expiry, pause/resume available

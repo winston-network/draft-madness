@@ -18,10 +18,10 @@ Draft NCAA tournament teams with your friends, then watch the points roll in as 
 |-------|---------------|
 | Round 1 (64 → 32) | 1 pt |
 | Round 2 (32 → 16) | 1 pt |
-| Sweet 16 (16 → 8) | 2 pts |
+| Sweet 16 (16 → 8) | 1 pt |
 | Elite 8 (8 → 4) | 2 pts |
-| Final Four (4 → 2) | 4 pts |
-| Championship (2 → 1) | 4 pts |
+| Final Four (4 → 2) | 2 pts |
+| Championship (2 → 1) | 2 pts |
 
 Tiebreaker: predict the total combined score of the championship game.
 
