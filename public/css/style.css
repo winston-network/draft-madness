@@ -121,9 +121,8 @@ body::before {
 .header-logo {
   width: 88px;
   height: 88px;
-  object-fit: cover;
-  object-position: center;
-  border-radius: 50%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
   filter: drop-shadow(0 2px 8px rgba(244,121,32,0.5));
   margin: -22px 0;
 }
