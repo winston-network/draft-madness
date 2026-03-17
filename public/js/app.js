@@ -229,8 +229,29 @@ async function loadDraft() {
 }
 
 // ─── Countdown Timer ───
+function updateTimerColor(timerEl, remaining) {
+  timerEl.classList.remove('timer-green', 'timer-warning', 'timer-danger');
+  if (remaining <= 60) {
+    timerEl.classList.add('timer-danger');
+  } else if (remaining <= 120) {
+    timerEl.classList.add('timer-warning');
+  } else {
+    timerEl.classList.add('timer-green');
+  }
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 function startCountdown(deadline) {
-  stopCountdown();
+  // Stop any existing interval but don't reset display
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
 
   const deadlineMs = new Date(deadline).getTime();
   const timerEl = document.getElementById('timer-display');
@@ -238,23 +259,12 @@ function startCountdown(deadline) {
 
   function tick() {
     const remaining = Math.max(0, Math.ceil((deadlineMs - Date.now()) / 1000));
-    const minutes = Math.floor(remaining / 60);
-    const seconds = remaining % 60;
-    timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-    // Color based on time: green >2min, yellow 1-2min, red <1min
-    timerEl.classList.remove('timer-green', 'timer-warning', 'timer-danger');
-    if (remaining <= 60) {
-      timerEl.classList.add('timer-danger');
-    } else if (remaining <= 120) {
-      timerEl.classList.add('timer-warning');
-    } else {
-      timerEl.classList.add('timer-green');
-    }
+    timerEl.textContent = formatTime(remaining);
+    updateTimerColor(timerEl, remaining);
 
     if (remaining <= 0) {
-      stopCountdown();
-      // Refresh draft state — server will have auto-picked
+      clearInterval(countdownInterval);
+      countdownInterval = null;
       setTimeout(loadDraft, 2000);
     }
   }
@@ -268,12 +278,7 @@ function stopCountdown() {
     clearInterval(countdownInterval);
     countdownInterval = null;
   }
-  const timerEl = document.getElementById('timer-display');
-  if (timerEl) {
-    timerEl.textContent = '3:00';
-    timerEl.classList.remove('timer-warning', 'timer-danger');
-    timerEl.classList.add('timer-green');
-  }
+  // Don't reset the display — just freeze at current value
 }
 
 function renderDraftGrid(state) {
@@ -572,11 +577,11 @@ function updatePauseButton(paused) {
   const btn = document.getElementById('pause-resume-btn');
   if (!btn) return;
   if (paused) {
-    btn.innerHTML = '&#9654;';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14"><polygon points="2,0 14,7 2,14" fill="currentColor"/></svg>';
     btn.className = 'btn btn-sm pause-btn paused';
     btn.title = 'Resume';
   } else {
-    btn.innerHTML = '&#9646;&#9646;';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="0" width="4" height="14" fill="currentColor"/><rect x="9" y="0" width="4" height="14" fill="currentColor"/></svg>';
     btn.className = 'btn btn-sm pause-btn';
     btn.title = 'Pause';
   }
