@@ -242,12 +242,14 @@ function startCountdown(deadline) {
     const seconds = remaining % 60;
     timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-    // Update styling based on urgency
-    timerEl.classList.remove('timer-warning', 'timer-danger');
-    if (remaining <= 5) {
+    // Color based on time: green >2min, yellow 1-2min, red <1min
+    timerEl.classList.remove('timer-green', 'timer-warning', 'timer-danger');
+    if (remaining <= 60) {
       timerEl.classList.add('timer-danger');
-    } else if (remaining <= 15) {
+    } else if (remaining <= 120) {
       timerEl.classList.add('timer-warning');
+    } else {
+      timerEl.classList.add('timer-green');
     }
 
     if (remaining <= 0) {
@@ -268,8 +270,9 @@ function stopCountdown() {
   }
   const timerEl = document.getElementById('timer-display');
   if (timerEl) {
-    timerEl.textContent = '';
+    timerEl.textContent = '3:00';
     timerEl.classList.remove('timer-warning', 'timer-danger');
+    timerEl.classList.add('timer-green');
   }
 }
 
@@ -484,13 +487,16 @@ function updateStatusBar() {
   const isMyTurn = draftState.currentContestant &&
     draftState.currentContestant.id === session.contestantId;
 
+  const round = draftState.currentPick.round;
+  const pickNum = draftState.currentPick.pickNumber;
+
   if (isMyTurn) {
     bar.className = 'status-bar your-turn';
-    statusText.textContent = `Your pick! Round ${draftState.currentPick.round}, Pick #${draftState.currentPick.pickNumber}`;
+    statusText.textContent = `It's Your pick — Round ${round}, Pick ${pickNum}`;
   } else {
     bar.className = 'status-bar waiting';
     const name = draftState.currentContestant ? draftState.currentContestant.name : '?';
-    statusText.textContent = `Waiting for ${name} — Round ${draftState.currentPick.round}, Pick #${draftState.currentPick.pickNumber}`;
+    statusText.textContent = `It's ${name}'s pick — Round ${round}, Pick ${pickNum}`;
   }
 }
 
@@ -548,7 +554,7 @@ function connectSSE() {
 async function togglePause() {
   const session = API.getSession();
   const btn = document.getElementById('pause-resume-btn');
-  const isPaused = btn.textContent.trim() === 'Resume';
+  const isPaused = btn.classList.contains('paused');
   const endpoint = isPaused ? 'resume' : 'pause';
 
   btn.disabled = true;
@@ -566,11 +572,13 @@ function updatePauseButton(paused) {
   const btn = document.getElementById('pause-resume-btn');
   if (!btn) return;
   if (paused) {
-    btn.textContent = 'Resume';
+    btn.innerHTML = '&#9654;';
     btn.className = 'btn btn-sm pause-btn paused';
+    btn.title = 'Resume';
   } else {
-    btn.textContent = 'Pause';
+    btn.innerHTML = '&#9646;&#9646;';
     btn.className = 'btn btn-sm pause-btn';
+    btn.title = 'Pause';
   }
 }
 
