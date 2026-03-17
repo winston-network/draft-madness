@@ -10,7 +10,7 @@ I'm building **Draft Madness**, a March Madness draft game web app at `/mnt/d/co
 
 **Tech**: Node.js/Express/SQLite backend, vanilla HTML/CSS/JS frontend, SSE for real-time, ESPN API for live scores.
 
-**Current state**: Full dark arena theme with scoreboard aesthetic. Demo mode on landing page (1-click game with 7 bots). Draft board with round-based layout, team logos filling cells. Sidebar swaps from available teams to inline leaderboard after draft completes. Digital scoreboard font (Orbitron) on all scores. Tournament round simulation for testing. Multiplayer infrastructure built (atomic joins, pick validation, pause/resume) but hidden behind demo mode until tested.
+**Current state**: Single-page view (no tab navigation) with dark arena theme and hardwood court floor background. Demo mode on landing page (1-click game with 7 bots). Draft board with round-based layout, team logos filling cells. Sidebar swaps from available teams to inline leaderboard after draft completes. Digital scoreboard font (Orbitron) on all scores. Tournament round simulation for testing. Multiplayer infrastructure built (atomic joins, pick validation, pause/resume) but hidden behind demo mode until tested.
 
 **Deployment**:
 - **GitHub**: https://github.com/winston-network/draft-madness (public, `winston-network` org)
@@ -23,11 +23,12 @@ I'm building **Draft Madness**, a March Madness draft game web app at `/mnt/d/co
 - `server.js` — entry point, all route wiring
 - `db/schema.sql` — database schema (5 tables)
 - `db/database.js` — SQLite init, migrations, 64-team seed (real 2026 bracket)
-- `public/index.html` — single-page app (landing + draft + leaderboard)
+- `public/index.html` — single-page app (landing + draft + leaderboard, no tabs)
 - `public/js/app.js` — all frontend logic
 - `public/css/style.css` — full design system (~1500 lines)
 
 **Design decisions**:
+- Single-page view: no tab navigation, lobby → draft board → leaderboard flow in one page
 - Snake draft: odd rounds forward (1-8), even rounds reverse (8-1)
 - Each team can be drafted max 2 times per game (same player can't pick same team twice)
 - Scoring: R1/R2=1pt, Sweet16/Elite8=2pts, Final4/Championship=4pts
@@ -35,10 +36,12 @@ I'm building **Draft Madness**, a March Madness draft game web app at `/mnt/d/co
 - Draft board: current round green border, all rounds same cell size, logos fill cells
 - After draft completes, sidebar swaps from available teams to inline compact leaderboard
 - Available teams: 2x2 grid, green tint=2 picks left, yellow=1 left, faded strikethrough=gone
-- Dark arena theme throughout: navy backgrounds, frosted glass cards, orange accents
+- Dark arena theme: navy backgrounds, frosted glass cards, orange accents
+- Hardwood basketball court floor background (hardwood.svg)
+- Chalkboard play diagram style: orange X's, green O's, white arrows (court-pattern.svg)
 - Scoreboard aesthetic: Orbitron digital font, red LED round scores, green LED alive count
 - Header: centered with basketball-fire SVG + bracket SVG, Russo One font
-- Court pattern background: real whiteboard X's and O's image, blurred/faded overlay
+- Subtitle: "A New Take on March Madness"
 - Branding: navy #0d1b2e, orange #f47920, Russo One + Orbitron + Inter fonts
 
 **Replit deploy command**:
@@ -52,7 +55,7 @@ git fetch origin && git reset --hard origin/main && rm -f march_madness.db* && p
 
 ## Quick Resume (for small tasks)
 
-Working on Draft Madness at `/mnt/d/coding_projects/march_madness`. Node.js/Express/SQLite web app for March Madness team drafting game. Read `PROJECT_SUMMARY.md` for context. GitHub: `winston-network/draft-madness`. Run with `npm start`, test at `http://localhost:3000`. Replit update: `git fetch origin && git reset --hard origin/main && rm -f march_madness.db* && pkill node ; sleep 2 && npm start`
+Working on Draft Madness at `/mnt/d/coding_projects/march_madness`. Node.js/Express/SQLite web app for March Madness team drafting game. Single-page view (no tabs) with hardwood court background. Read `PROJECT_SUMMARY.md` for context. GitHub: `winston-network/draft-madness`. Run with `npm start`, test at `http://localhost:3000`. Replit update: `git fetch origin && git reset --hard origin/main && rm -f march_madness.db* && pkill node ; sleep 2 && npm start`
 
 ---
 
@@ -62,7 +65,7 @@ Working on Draft Madness at `/mnt/d/coding_projects/march_madness`. Node.js/Expr
 2. **Flexible player count** — Support 4, 6, or 8 players (adjust rounds/max-per-team)
 3. **Production branch** — Strip test toolbar, quick test, dev endpoints
 4. **Custom domain** — Finish `draftmadness2026.com` DNS setup (Railway + GoDaddy)
-5. **Re-enable Scenarios tab** — Backend is done, just need to add tab back to nav
+5. **Re-enable Scenarios tab** — Backend is done, just need to add UI back
 6. **Admin dashboard** — Manage games, update team database yearly
 7. **User accounts** — Replace name+code auth with real accounts
 8. **Payment integration** — Buy-in collection

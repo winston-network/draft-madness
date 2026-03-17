@@ -3,7 +3,7 @@
 ## What Is This?
 A web app for a March Madness draft game. Up to 8 contestants draft NCAA tournament teams via snake draft, then earn points as their teams win games. Built as a proof-of-concept web app, intended to eventually become a mobile app + web version.
 
-**Tagline**: "A new take on March Madness brackets — don't get busted!"
+**Tagline**: "A New Take on March Madness — don't get busted!"
 
 ## Game Rules
 - **8 contestants per game** (4 and 6 player modes planned)
@@ -17,7 +17,7 @@ A web app for a March Madness draft game. Up to 8 contestants draft NCAA tournam
 
 ## Tech Stack
 - **Backend**: Node.js + Express + SQLite (better-sqlite3, WAL mode)
-- **Frontend**: Vanilla HTML/CSS/JS (no framework)
+- **Frontend**: Vanilla HTML/CSS/JS (no framework, single-page, no tab navigation)
 - **Real-time**: Server-Sent Events (SSE) for live draft updates + lobby join notifications
 - **Live scores**: ESPN public API polling (every 60s during tournament)
 - **Auth**: Simple name + game code (session token in localStorage)
@@ -46,10 +46,12 @@ march_madness/
 │   └── espn.js                # ESPN API integration for live scores
 ├── branding/
 │   ├── DraftMadness_logo.jpg  # Main logo
+│   ├── bball_logo.png         # Basketball logo variant
 │   ├── scoreboard.png         # Scoreboard design reference
-│   └── xando.png              # Court pattern design reference
+│   ├── xando.png              # Play diagram reference (original)
+│   └── xando_new.jpg          # Play diagram reference (updated)
 └── public/
-    ├── index.html             # Single-page app: landing → draft + leaderboard
+    ├── index.html             # Single-page app: landing → draft board + leaderboard (no tabs)
     ├── css/style.css          # Full dark arena design system (~1500 lines)
     ├── js/api.js              # API client wrapper
     ├── js/app.js              # All UI logic, draft rendering, countdown, SSE
@@ -57,7 +59,9 @@ march_madness/
         ├── logo-main.jpg      # Landing page logo
         ├── basketball-fire.svg # Header icon
         ├── bracket.svg        # Header bracket illustration
-        ├── court-pattern.png  # Background texture (whiteboard X's and O's)
+        ├── hardwood.svg       # Hardwood basketball court floor background
+        ├── court-pattern.png  # Background texture (chalkboard play diagram)
+        ├── court-pattern.svg  # Court pattern vector version
         ├── favicon.svg        # App icon
         ├── logo-v2.svg        # Legacy logo
         └── logo.svg           # Legacy logo
@@ -72,6 +76,7 @@ march_madness/
 - [x] Real-time SSE updates during draft with heartbeat (25s)
 - [x] Atomic race condition protection (joins, picks, start-draft)
 - [x] Double-click prevention on picks (frontend + backend)
+- [x] Single-page view (no tab navigation) — lobby → draft → leaderboard flow
 - [x] Round-based draft board (current round green border, logos fill cells)
 - [x] Sidebar swaps to inline leaderboard after draft completes
 - [x] Available teams 2x2 region grid with color-coded availability
@@ -82,14 +87,16 @@ march_madness/
 - [x] Scoreboard-style leaderboard (Orbitron font, LED glow effects, tight spacing)
 - [x] Compact sidebar leaderboard (abbreviated round headers)
 - [x] Team detail expansion (click contestant to see their teams)
-- [x] Scenarios engine — backend ready, tab hidden
+- [x] Scenarios engine — backend ready, UI not yet added back
 - [x] ESPN API live score polling
 - [x] Demo mode (1-click game with 7 bots)
 - [x] Bot simulation toolbar (bot picks, auto-complete draft, sim tournament rounds)
 - [x] Tournament round simulation with seed-weighted results
 - [x] Dark arena theme: navy backgrounds, frosted glass cards, orange accents
+- [x] Hardwood basketball court floor background
+- [x] Chalkboard play diagram overlay (orange X's, green O's, white arrows)
 - [x] Centered header with basketball-fire + bracket SVGs, Russo One font
-- [x] Court pattern background (whiteboard X's and O's, blurred overlay)
+- [x] Subtitle: "A New Take on March Madness"
 - [x] Shareable game links with ?code= auto-fill (hidden behind demo for now)
 - [x] Mobile-responsive design
 - [x] Railway production deployment
@@ -104,17 +111,17 @@ march_madness/
 - [ ] Push notifications
 - [ ] Draft chat/messaging
 - [ ] Historical stats / past games
-- [ ] Scenarios tab UI (backend done)
+- [ ] Scenarios UI (backend done)
 - [ ] Mobile app (React Native / Flutter)
 - [ ] First Four game results (4 TBD slots in bracket)
 
 ## Branding
 - **Name**: Draft Madness
-- **Tagline**: "A new take on March Madness brackets — don't get busted!"
+- **Tagline**: "A New Take on March Madness — don't get busted!"
 - **Colors**: Navy #0d1b2e, Orange #f47920, Gold #f5c842
-- **Theme**: Dark arena / scoreboard aesthetic
+- **Theme**: Dark arena / scoreboard aesthetic with hardwood court background
 - **Fonts**: Inter (body), Russo One (header), Orbitron (scores/numbers)
-- **Style**: Dark backgrounds, frosted glass UI, digital scoreboard numbers, court pattern overlay
+- **Style**: Dark backgrounds, frosted glass UI, digital scoreboard numbers, hardwood floor, chalkboard play diagram overlay
 
 ## Deployment
 - **GitHub**: https://github.com/winston-network/draft-madness (public)

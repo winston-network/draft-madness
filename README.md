@@ -1,6 +1,6 @@
 # Draft Madness
 
-A new take on March Madness brackets — don't get busted!
+A New Take on March Madness — don't get busted!
 
 Draft NCAA tournament teams with your friends, then watch the points roll in as your teams win games throughout the tournament.
 
@@ -28,10 +28,10 @@ Tiebreaker: predict the total combined score of the championship game.
 ## Tech Stack
 
 - **Backend**: Node.js + Express + SQLite (better-sqlite3, WAL mode)
-- **Frontend**: Vanilla HTML/CSS/JS
+- **Frontend**: Vanilla HTML/CSS/JS (single-page, no tabs)
 - **Real-time**: Server-Sent Events (SSE) for live draft updates
 - **Live scores**: ESPN public API polling
-- **Design**: Dark arena theme with digital scoreboard aesthetic
+- **Design**: Dark arena theme with hardwood court background and digital scoreboard aesthetic
 
 ## Running Locally
 
@@ -65,13 +65,13 @@ db/schema.sql          — Database schema (5 tables)
 db/database.js         — SQLite init, migrations, 64-team seed data
 routes/                — API routes (auth, games, draft, scores, test)
 services/              — Business logic (draft engine, scoring, timer, ESPN)
-public/                — Frontend (single-page app)
-  index.html           — Landing page + draft board + leaderboard
-  css/style.css        — Dark arena design system
+public/                — Frontend (single-page app, no tab navigation)
+  index.html           — Landing page + draft board + leaderboard (all one view)
+  css/style.css        — Dark arena design system (~1500 lines)
   js/app.js            — All UI logic, SSE, countdown
   js/api.js            — API client wrapper
-  img/                 — Logos, icons, court pattern
-branding/              — Design reference assets
+  img/                 — Logos, icons, hardwood background, court pattern
+branding/              — Design reference assets (logos, scoreboard, play diagrams)
 ```
 
 ## 2026 Season
