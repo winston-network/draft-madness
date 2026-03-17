@@ -122,7 +122,6 @@ body::before {
   width: 88px;
   height: 88px;
   object-fit: contain;
-  mix-blend-mode: multiply;
   filter: drop-shadow(0 2px 8px rgba(244,121,32,0.5));
   margin: -22px 0;
 }
@@ -1337,8 +1336,40 @@ td.round-pending {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex-shrink: 0;
+  position: relative;
+}
+
+.status-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pause-btn {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.pause-btn.paused {
+  background: var(--success);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(34,197,94,0.4);
+}
+
+.pause-btn:not(.paused) {
+  background: #ef4444;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(239,68,68,0.4);
 }
 
 .status-bar.waiting {
@@ -1387,7 +1418,6 @@ td.round-pending {
   background: rgba(255,255,255,0.06);
   min-width: 52px;
   text-align: center;
-  margin-left: auto;
   letter-spacing: 1px;
   transition: all 0.3s ease;
 }

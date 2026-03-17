@@ -567,10 +567,10 @@ function updatePauseButton(paused) {
   if (!btn) return;
   if (paused) {
     btn.textContent = 'Resume';
-    btn.className = 'btn btn-sm btn-success';
+    btn.className = 'btn btn-sm pause-btn paused';
   } else {
     btn.textContent = 'Pause';
-    btn.className = 'btn btn-sm btn-accent';
+    btn.className = 'btn btn-sm pause-btn';
   }
 }
 
