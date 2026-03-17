@@ -76,8 +76,10 @@ async function joinGame() {
 function enterGame(code) {
   document.getElementById('landing-page').style.display = 'none';
   document.getElementById('game-page').style.display = 'block';
-  document.getElementById('game-code-display').textContent = code;
-  document.getElementById('player-name-display').textContent = API.getSession().name;
+  const codeEl = document.getElementById('game-code-display');
+  const nameEl = document.getElementById('player-name-display');
+  if (codeEl) codeEl.textContent = code;
+  if (nameEl) nameEl.textContent = API.getSession().name;
   loadLobby();
   switchTab('draft');
 }
