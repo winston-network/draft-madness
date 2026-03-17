@@ -67,9 +67,11 @@ body {
 body::before {
   content: '';
   position: fixed;
-  inset: 0;
-  background: url('/img/court-pattern.svg') center/cover no-repeat;
-  filter: blur(1.5px);
+  inset: -25%;
+  width: 150%;
+  height: 150%;
+  background: url('/img/court-pattern.svg') center/contain repeat;
+  filter: blur(1px);
   z-index: 0;
   pointer-events: none;
 }
@@ -385,8 +387,7 @@ input:focus {
   background:
     radial-gradient(ellipse at 50% 30%, rgba(244,121,32,0.08) 0%, transparent 60%),
     radial-gradient(ellipse at 20% 80%, rgba(36,58,94,0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(36,58,94,0.3) 0%, transparent 50%),
-    var(--bg);
+    radial-gradient(ellipse at 80% 80%, rgba(36,58,94,0.3) 0%, transparent 50%);
   position: relative;
   z-index: 1;
   overflow: hidden;
@@ -396,7 +397,7 @@ input:focus {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(170deg, #0a0f1a 0%, #0e0a06 50%, #0a0f1a 100%);
+  background: linear-gradient(170deg, rgba(10,15,26,0.7) 0%, rgba(14,10,6,0.6) 50%, rgba(10,15,26,0.7) 100%);
   z-index: -1;
 }
 
@@ -522,10 +523,9 @@ input:focus {
    ═══════════════════════════════════════════ */
 #game-page {
   background:
-        radial-gradient(ellipse at 50% 0%, rgba(244,121,32,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(244,121,32,0.06) 0%, transparent 50%),
     radial-gradient(ellipse at 0% 50%, rgba(36,58,94,0.2) 0%, transparent 40%),
-    radial-gradient(ellipse at 100% 50%, rgba(36,58,94,0.2) 0%, transparent 40%),
-    var(--bg);
+    radial-gradient(ellipse at 100% 50%, rgba(36,58,94,0.2) 0%, transparent 40%);
   min-height: 100vh;
 }
 
