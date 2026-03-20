@@ -549,6 +549,7 @@ function renderLeaderboard(data) {
 
   const roundCols = [1, 2, 3, 4, 5, 6];
   const shortLabels = { 1: 'R1', 2: 'R2', 3: 'S16', 4: 'E8', 5: 'F4', 6: 'CH' };
+  const currentRound = roundsPlayed.length > 0 ? Math.max(...roundsPlayed) : 0;
 
   head.innerHTML = `<tr>
     <th class="lb-rank">#</th>
@@ -556,7 +557,11 @@ function renderLeaderboard(data) {
     <th style="width:32px; font-size:0.5rem; padding:0.3rem 0.15rem">ALV</th>
     ${roundCols.map(r => {
       const played = roundsPlayed.includes(r);
-      return `<th class="lb-round ${played ? '' : 'round-pending'}" style="width:32px; font-size:0.5rem; padding:0.3rem 0.15rem">${shortLabels[r]}</th>`;
+      const isCurrent = r === currentRound;
+      const fontSize = isCurrent ? '0.7rem' : '0.5rem';
+      const fontWeight = isCurrent ? '800' : '400';
+      const color = isCurrent ? 'color:var(--orange)' : '';
+      return `<th class="lb-round ${played ? '' : 'round-pending'}" style="width:32px; font-size:${fontSize}; font-weight:${fontWeight}; padding:0.3rem 0.15rem; ${color}">${shortLabels[r]}</th>`;
     }).join('')}
     <th class="lb-total" style="width:44px">PTS</th>
   </tr>`;
@@ -570,8 +575,11 @@ function renderLeaderboard(data) {
     const roundCells = roundCols.map(r => {
       const pts = s.roundScores[r] || 0;
       const played = roundsPlayed.includes(r);
+      const isCurrent = r === currentRound;
       if (!played) return `<td class="lb-round round-pending" style="padding:0.25rem 0.1rem"><span class="round-tbd" style="font-size:0.55rem">—</span></td>`;
-      return `<td class="lb-round" style="padding:0.25rem 0.1rem"><span class="round-pts${pts > 0 ? ' has-pts' : ''}" style="font-size:0.8rem">${pts}</span></td>`;
+      const cellSize = isCurrent ? '0.9rem' : '0.8rem';
+      const cellWeight = isCurrent ? 'font-weight:700' : '';
+      return `<td class="lb-round" style="padding:0.25rem 0.1rem"><span class="round-pts${pts > 0 ? ' has-pts' : ''}" style="font-size:${cellSize}; ${cellWeight}">${pts}</span></td>`;
     }).join('');
 
     return `<tr class="${rowClass}" onclick="showTeamDetail(${s.contestantId}, '${s.name.replace(/'/g, "\\'")}')">
