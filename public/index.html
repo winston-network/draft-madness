@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <!-- GAME PAGE -->
+  <!-- GAME PAGE (single view: header + status bar + draft board with sidebar) -->
   <div id="game-page" style="display:none">
     <div class="header">
       <div class="header-brand">
@@ -49,66 +49,15 @@
       </div>
     </div>
 
-
-    <!-- LOBBY TAB -->
-    <div id="tab-lobby" class="page" style="display:none">
-      <div class="card">
-        <h2>Game: <span id="lobby-game-name"></span></h2>
-        <p style="margin-bottom:0.75rem; color:var(--text-secondary); font-weight:500">
-          Buy-in: <strong style="color:var(--orange); font-size:1.1rem">$<span id="lobby-buyin">0</span></strong>
-        </p>
-        <p style="margin-bottom:0.75rem; color:var(--text-muted); font-size:0.85rem">Share this code with your friends:</p>
-        <div style="text-align:center; margin-bottom:1.25rem">
-          <span class="game-code-display-large" id="lobby-code"></span>
-        </div>
-        <div id="lobby-share-link" style="display:none; text-align:center; margin-bottom:1rem">
-          <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.4rem">Or share this link:</p>
-          <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center">
-            <input type="text" id="lobby-share-url" readonly style="flex:1; max-width:320px; font-size:0.82rem; cursor:pointer; margin-bottom:0" onclick="this.select(); document.execCommand('copy'); showToast('Link copied!')">
-            <button class="btn btn-sm btn-primary" onclick="document.getElementById('lobby-share-url').select(); document.execCommand('copy'); showToast('Link copied!')">Copy</button>
-          </div>
-        </div>
-        <div class="contestant-count" id="lobby-count">
-          <span>0/8 contestants</span>
-          <div class="count-bar"><div class="count-fill" id="lobby-count-fill" style="width:0%"></div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Contestants</h2>
-        <ul class="contestant-list" id="contestant-list"></ul>
-      </div>
-
-      <div class="card" id="tiebreaker-card" style="display:none">
-        <h2>Tiebreaker Prediction</h2>
-        <p style="color:var(--text-secondary); margin-bottom:0.75rem; font-size:0.9rem">
-          Predict the total combined score of the championship game:
-        </p>
-        <div style="display:flex; gap:0.5rem; align-items:start">
-          <input type="number" id="tiebreaker-input" placeholder="e.g. 145" min="0" max="500" style="margin-bottom:0">
-          <button class="btn btn-primary" onclick="submitTiebreaker()">Save</button>
-        </div>
-        <p id="tiebreaker-status" style="color:var(--success); font-size:0.82rem; margin-top:0.5rem; font-weight:600"></p>
-      </div>
-
-      <div style="text-align:center; margin-top:1.5rem" id="start-draft-section">
-        <button class="btn btn-accent btn-lg" id="start-draft-btn" onclick="startDraft()" style="display:none">
-          Draw Straws &amp; Start Draft
-        </button>
-      </div>
-    </div>
-
-    <!-- DRAFT TAB -->
-    <div id="tab-draft" class="page active" style="display:block">
+    <!-- Draft board + sidebar -->
+    <div class="game-content">
       <div class="draft-layout">
-        <!-- Left: Draft board -->
         <div class="draft-main">
           <div class="card draft-card">
             <h2>Draft Board</h2>
             <div id="draft-rounds-container"></div>
           </div>
         </div>
-        <!-- Right: Available teams sidebar (during draft) / Leaderboard (after draft) -->
         <div class="draft-sidebar" id="draft-sidebar-panel">
           <div class="card" id="sidebar-teams-card">
             <h2>Available Teams</h2>
@@ -126,18 +75,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-
-    <!-- SCENARIOS TAB -->
-    <div id="tab-scenarios" class="page">
-      <div class="card">
-        <h2>What-If Scenarios</h2>
-        <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.9rem" id="scenarios-info">
-          Available when 4 or fewer teams remain in the tournament.
-        </p>
-        <div id="scenarios-container"></div>
       </div>
     </div>
   </div>

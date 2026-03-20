@@ -1,5 +1,6 @@
 /**
  * Draft Madness — Main application logic
+ * Single-page app: Landing → Draft Board with sidebar (teams → leaderboard)
  */
 
 let gameState = null;
@@ -9,6 +10,7 @@ let pollInterval = null;
 let countdownInterval = null;
 let pickPending = false;
 let leaderboardPollInterval = null;
+let lastLeaderboardData = null;
 
 // ─── Toast ───
 function showToast(msg, ms = 3000) {
@@ -16,23 +18,6 @@ function showToast(msg, ms = 3000) {
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), ms);
-}
-
-// ─── Tab Navigation ───
-function switchTab(tab) {
-  document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tabs button').forEach((b) => b.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
-
-  const tabLabels = { lobby: 'Lobby', draft: 'Draft', scores: 'Leaderboard', scenarios: 'Scenarios' };
-  document.querySelectorAll('.nav-tabs button').forEach((b) => {
-    if (b.textContent === tabLabels[tab]) b.classList.add('active');
-  });
-
-  if (tab === 'draft') loadDraft();
-  if (tab === 'scores') loadLeaderboard();
-  if (tab === 'scenarios') loadScenarios();
-  if (tab === 'lobby') loadLobby();
 }
 
 // ─── Create / Join ───
@@ -77,101 +62,32 @@ async function joinGame() {
 function enterGame(code) {
   document.getElementById('landing-page').style.display = 'none';
   document.getElementById('game-page').style.display = 'block';
-  const codeEl = document.getElementById('game-code-display');
-  const nameEl = document.getElementById('player-name-display');
-  if (codeEl) codeEl.textContent = code;
-  if (nameEl) nameEl.textContent = API.getSession().name;
-  loadLobby();
-  switchTab('draft');
+  loadGameState();
+  loadDraft();
 }
 
-// ─── Lobby ───
-async function loadLobby() {
+// ─── Game State ───
+async function loadGameState() {
   const session = API.getSession();
   if (!session.gameCode) return;
   try {
     const game = await API.getGame(session.gameCode);
     gameState = game;
 
-    document.getElementById('lobby-game-name').textContent = game.name;
-    document.getElementById('lobby-buyin').textContent = game.buy_in || 0;
-    document.getElementById('lobby-code').textContent = game.id;
-
-    // Show shareable link
-    const shareLink = document.getElementById('lobby-share-link');
-    const shareUrl = document.getElementById('lobby-share-url');
-    if (shareLink && shareUrl) {
-      shareUrl.value = `${window.location.origin}?code=${game.id}`;
-      shareLink.style.display = 'block';
-    }
-
-    const countEl = document.getElementById('lobby-count');
-    countEl.querySelector('span').textContent = `${game.contestants.length}/8 contestants`;
-    document.getElementById('lobby-count-fill').style.width = `${(game.contestants.length / 8) * 100}%`;
-
-    const list = document.getElementById('contestant-list');
-    list.innerHTML = game.contestants
-      .map((c) => {
-        const posHtml = c.draft_position
-          ? `<span class="draft-position-badge">${c.draft_position}</span>`
-          : '<span class="waiting-badge">Waiting...</span>';
-        const youBadge = c.id === session.contestantId ? '<span class="you-badge">You</span>' : '';
-        return `<li><span>${c.name}${youBadge}</span>${posHtml}</li>`;
-      })
-      .join('');
-
-    // Show start button if 8 contestants and in lobby
-    const startBtn = document.getElementById('start-draft-btn');
-    if (game.contestants.length === 8 && game.status === 'lobby') {
-      startBtn.style.display = 'inline-flex';
-    } else {
-      startBtn.style.display = 'none';
-    }
-
-    // Show tiebreaker if draft started or active
-    const tbCard = document.getElementById('tiebreaker-card');
-    if (game.status === 'drafting' || game.status === 'active') {
-      tbCard.style.display = 'block';
-      const me = game.contestants.find((c) => c.id === session.contestantId);
-      if (me && me.tiebreaker_score != null) {
-        document.getElementById('tiebreaker-status').textContent = `Saved: ${me.tiebreaker_score}`;
-        document.getElementById('tiebreaker-input').value = me.tiebreaker_score;
-      }
-    }
-
-    if (game.status === 'drafting') {
-      updateStatusBar();
-    }
-
-    // If in lobby, poll for updates
+    // If in lobby, poll for updates until draft starts
     if (game.status === 'lobby') {
       if (!pollInterval) {
-        pollInterval = setInterval(loadLobby, 5000);
+        pollInterval = setInterval(loadGameState, 5000);
       }
     } else {
       if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
     }
 
+    if (game.status === 'drafting') {
+      updateStatusBar();
+    }
   } catch (e) {
     showToast(e.message);
-  }
-}
-
-async function startDraft() {
-  const btn = document.getElementById('start-draft-btn');
-  btn.disabled = true;
-  btn.textContent = 'Drawing straws...';
-
-  const session = API.getSession();
-  try {
-    await API.startDraft(session.gameCode);
-    showToast('Straws drawn! Draft starting!');
-    await loadLobby();
-    setTimeout(() => switchTab('draft'), 1200);
-  } catch (e) {
-    showToast(e.message);
-    btn.disabled = false;
-    btn.textContent = 'Draw Straws & Start Draft';
   }
 }
 
@@ -181,7 +97,6 @@ async function submitTiebreaker() {
   if (!score) return showToast('Enter a score prediction');
   try {
     await API.submitTiebreaker(session.gameCode, score);
-    document.getElementById('tiebreaker-status').textContent = `Saved: ${score}`;
     showToast('Tiebreaker saved!');
   } catch (e) {
     showToast(e.message);
@@ -208,7 +123,7 @@ async function loadDraft() {
     if (draftComplete && teamsCard && sidebarLB) {
       teamsCard.style.display = 'none';
       sidebarLB.style.display = '';
-      loadSidebarLeaderboard();
+      loadLeaderboard();
     } else {
       if (teamsCard) teamsCard.style.display = '';
       if (sidebarLB) sidebarLB.style.display = 'none';
@@ -250,7 +165,6 @@ function formatTime(seconds) {
 }
 
 function startCountdown(deadline) {
-  // Stop any existing interval but don't reset display
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
@@ -281,7 +195,6 @@ function stopCountdown() {
     clearInterval(countdownInterval);
     countdownInterval = null;
   }
-  // Don't reset the display — just freeze at current value
 }
 
 function renderDraftGrid(state) {
@@ -293,25 +206,17 @@ function renderDraftGrid(state) {
   const pickMap = {};
   state.picks.forEach((p) => { pickMap[p.pick_number] = p; });
 
-  // Determine current round (1-based)
   const currentRound = state.currentPick.isComplete ? 17 : state.currentPick.round;
 
-  // Build snake order mapping: for each round, which pick# goes to which column (draft_position)
-  // Columns are always 1-8 (left to right = draft_position 1-8)
-  // In odd rounds, position 1 picks first; in even rounds, position 8 picks first
   function getPickNumForColumn(round, colPosition) {
-    // colPosition is 1-8 (the draft_position / column index)
     const roundStart = (round - 1) * 8;
     if (round % 2 === 1) {
-      // Forward: position 1 = pick 1, position 2 = pick 2, etc.
       return roundStart + colPosition;
     } else {
-      // Reverse: position 1 = pick 8, position 2 = pick 7, etc.
       return roundStart + (9 - colPosition);
     }
   }
 
-  // Column headers (spacer for round label + contestant names)
   let html = '<div class="draft-columns-header">';
   html += '<div class="draft-col-header">Rd</div>';
   for (let i = 1; i <= 8; i++) {
@@ -320,7 +225,6 @@ function renderDraftGrid(state) {
   }
   html += '</div>';
 
-  // Render rounds
   for (let round = 1; round <= 16; round++) {
     let roundClass;
     if (round < currentRound) {
@@ -331,14 +235,12 @@ function renderDraftGrid(state) {
       roundClass = 'future';
     }
 
-    // Only show: all previous, current, and next 2 future rounds
     if (roundClass === 'future' && round > currentRound + 2) continue;
 
     html += `<div class="draft-round ${roundClass}">`;
     html += `<div class="round-header">${round}</div>`;
     html += `<div class="round-picks">`;
 
-    // Always render columns 1-8 in order (matching header)
     for (let col = 1; col <= 8; col++) {
       const pickNum = getPickNumForColumn(round, col);
       const pick = pickMap[pickNum];
@@ -381,7 +283,6 @@ function renderAvailableTeams(state) {
   const list = document.getElementById('teams-list');
   const sidebar = list.closest('.draft-sidebar');
 
-  // Track how many times each team has been drafted
   const draftedTeams = {};
   const myTeams = new Set();
   state.picks.forEach((p) => {
@@ -389,12 +290,8 @@ function renderAvailableTeams(state) {
     if (p.contestant_id === session.contestantId) myTeams.add(p.team_id);
   });
 
-  // Build a full team list from availableTeams (< 2 picks) plus fully drafted ones from picks
-  // availableTeams already has teams with times_drafted < 2
   const allTeamMap = {};
   state.availableTeams.forEach((t) => { allTeamMap[t.id] = t; });
-
-  // Add fully drafted teams from picks (teams drafted 2x won't be in availableTeams)
   state.picks.forEach((p) => {
     if (!allTeamMap[p.team_id]) {
       allTeamMap[p.team_id] = {
@@ -408,14 +305,12 @@ function renderAvailableTeams(state) {
     }
   });
 
-  // Toggle locked state
   if (!isMyTurn) {
     sidebar.classList.add('locked');
   } else {
     sidebar.classList.remove('locked');
   }
 
-  // 4-column grid: one column per region, all 64 teams visible
   let html = '<div class="teams-region-grid">';
 
   for (const region of regions) {
@@ -465,7 +360,6 @@ function updateStatusBar() {
   const statusText = document.getElementById('status-text');
   const timerEl = document.getElementById('timer-display');
   const session = API.getSession();
-
   const pauseBtn = document.getElementById('pause-resume-btn');
 
   if (!draftState || !draftState.currentPick) {
@@ -478,14 +372,31 @@ function updateStatusBar() {
 
   if (draftState.currentPick.isComplete) {
     bar.className = 'status-bar complete';
-    statusText.textContent = 'Draft complete! Scores are live.';
     if (timerEl) timerEl.textContent = '';
     if (pauseBtn) pauseBtn.style.display = 'none';
     stopCountdown();
+
+    // Show ESPN live status in the status bar
+    if (lastLeaderboardData && lastLeaderboardData.pollStatus) {
+      const ps = lastLeaderboardData.pollStatus;
+      const schedule = ps.schedule || {};
+      let liveText = 'Draft complete!';
+      if (schedule.gamesInProgress) {
+        liveText = `LIVE — ${schedule.completedGames}/${schedule.totalGames} games final`;
+      } else if (schedule.hasGames && !schedule.allComplete) {
+        liveText = `ESPN connected — ${schedule.completedGames}/${schedule.totalGames} games final`;
+      } else if (schedule.allComplete) {
+        liveText = 'All games final';
+      } else {
+        liveText = 'Draft complete — No games today';
+      }
+      statusText.innerHTML = `${liveText} <button class="btn btn-sm live-refresh-btn" onclick="manualRefreshScores()" style="margin-left:0.5rem; font-size:0.7rem; padding:0.2rem 0.5rem">Refresh ESPN</button>`;
+    } else {
+      statusText.textContent = 'Draft complete! Scores are live.';
+    }
     return;
   }
 
-  // Show pause/resume button during active draft
   if (pauseBtn) {
     pauseBtn.style.display = 'inline-flex';
     const isPaused = draftState.game && draftState.game.status === 'paused';
@@ -536,7 +447,7 @@ function connectSSE() {
         showToast(`${data.pick.contestantName} drafted ${data.pick.teamName}${autoLabel}`);
         loadDraft();
       } else if (data.type === 'join') {
-        loadLobby();
+        loadGameState();
       } else if (data.type === 'pause') {
         showToast('Draft paused');
         stopCountdown();
@@ -591,32 +502,25 @@ function updatePauseButton(paused) {
 }
 
 // ─── Leaderboard ───
-let lastLeaderboardData = null;
-
 async function loadLeaderboard() {
   const session = API.getSession();
   if (!session.gameCode) return;
-
   try {
     const data = await API.getLeaderboard(session.gameCode);
     lastLeaderboardData = data;
-    renderPrizes(data.prizes);
     renderLeaderboard(data);
     renderLiveIndicator(data);
     startLeaderboardPolling(data);
-  } catch (e) {
-    showToast(e.message);
-  }
+  } catch (_) {}
 }
 
 function startLeaderboardPolling(data) {
   if (leaderboardPollInterval) return;
   if (data.gameStatus !== 'active') return;
 
-  // Match the server's poll interval — only refresh when ESPN is actively polling
   const pollMs = data.pollStatus && data.pollStatus.shouldPoll
-    ? Math.max(data.pollStatus.nextCheckMs || 600000, 60000) // at least 1 min
-    : 600000; // 10 min default
+    ? Math.max(data.pollStatus.nextCheckMs || 600000, 60000)
+    : 600000;
 
   leaderboardPollInterval = setInterval(async () => {
     const session = API.getSession();
@@ -625,10 +529,8 @@ function startLeaderboardPolling(data) {
       const fresh = await API.getLeaderboard(session.gameCode);
       lastLeaderboardData = fresh;
       renderLeaderboard(fresh);
-      renderSidebarLeaderboard(fresh);
       renderLiveIndicator(fresh);
 
-      // Adjust interval if poll status changed
       if (fresh.pollStatus && !fresh.pollStatus.shouldPoll && fresh.pollStatus.reason === 'All games final') {
         stopLeaderboardPolling();
       }
@@ -647,7 +549,6 @@ function renderLiveIndicator(data) {
   let indicator = document.getElementById('live-scores-indicator');
   if (!indicator) {
     const table = document.querySelector('#sidebar-leaderboard .leaderboard-table') ||
-                  document.querySelector('#tab-scores .leaderboard-table') ||
                   document.querySelector('.leaderboard-table');
     if (!table) return;
     indicator = document.createElement('div');
@@ -704,7 +605,6 @@ async function manualRefreshScores() {
     const data = await API.refreshScores(session.gameCode);
     lastLeaderboardData = data;
     renderLeaderboard(data);
-    renderSidebarLeaderboard(data);
     renderLiveIndicator(data);
     showToast(`ESPN sync complete (${data.espnResult?.updated || 0} results updated)`);
   } catch (e) {
@@ -714,98 +614,12 @@ async function manualRefreshScores() {
   }
 }
 
-function renderPrizes(prizes) {
-  const el = document.getElementById('prizes-display');
-  if (!el) return;
-  el.innerHTML = `
-    <div class="prize-card first">
-      <div class="place">1st Place</div>
-      <div class="amount">$${prizes.first}</div>
-    </div>
-    <div class="prize-card second">
-      <div class="place">2nd Place</div>
-      <div class="amount">$${prizes.second}</div>
-    </div>
-    <div class="prize-card third">
-      <div class="place">3rd Place</div>
-      <div class="amount">$${prizes.third}</div>
-    </div>
-  `;
-}
-
-function renderLeaderboard(data, headId, bodyId) {
-  const { standings, roundsPlayed, championshipComplete, roundLabels } = data;
-
-  const head = document.getElementById(headId || 'leaderboard-head');
-  const body = document.getElementById(bodyId || 'leaderboard-body');
-  if (!head || !body) return;
-
-  // Build header — always show all 6 round columns
-  const roundCols = [1, 2, 3, 4, 5, 6];
-  head.innerHTML = `<tr>
-    <th class="lb-rank">#</th>
-    <th class="lb-name">Contestant</th>
-    <th class="lb-alive">Alive</th>
-    ${roundCols
-      .map((r) => {
-        const played = roundsPlayed.includes(r);
-        const cls = played ? '' : 'round-pending';
-        return `<th class="lb-round ${cls}">${roundLabels[r]}</th>`;
-      })
-      .join('')}
-    <th class="lb-total">Total</th>
-  </tr>`;
-
-  // Build rows
-  body.innerHTML = standings
-    .map((s, i) => {
-      const rank = i + 1;
-      const showMedal = championshipComplete && rank <= 3;
-      const rankClass = showMedal ? `rank-${rank}` : '';
-      const rowClass = showMedal ? `place-${rank}` : '';
-
-      const roundCells = roundCols
-        .map((r) => {
-          const pts = s.roundScores[r] || 0;
-          const played = roundsPlayed.includes(r);
-          if (!played) return `<td class="lb-round round-pending"><span class="round-tbd">—</span></td>`;
-          return `<td class="lb-round"><span class="round-pts${pts > 0 ? ' has-pts' : ''}">${pts}</span></td>`;
-        })
-        .join('');
-
-      return `<tr class="${rowClass}" onclick="showTeamDetail(${s.contestantId}, '${s.name.replace(/'/g, "\\'")}')">
-        <td class="lb-rank"><span class="rank-badge ${rankClass}">${showMedal ? ['', '&#9679;', '&#9679;', '&#9679;'][rank] : rank}</span></td>
-        <td class="lb-name"><strong>${s.name}</strong></td>
-        <td class="lb-alive"><span class="alive-count">${s.teamsAlive}<span class="alive-of">/16</span></span></td>
-        ${roundCells}
-        <td class="lb-total"><span class="score-value">${s.score}</span></td>
-      </tr>`;
-    })
-    .join('');
-}
-
-async function loadSidebarLeaderboard() {
-  const session = API.getSession();
-  if (!session.gameCode) return;
-  try {
-    const data = await API.getLeaderboard(session.gameCode);
-    lastLeaderboardData = data;
-    renderSidebarLeaderboard(data);
-    renderLiveIndicator(data);
-    // Also update the main leaderboard tab if it exists
-    renderLeaderboard(data);
-    // Start auto-polling if game is active (tournament in progress)
-    startLeaderboardPolling(data);
-  } catch (_) {}
-}
-
-function renderSidebarLeaderboard(data) {
+function renderLeaderboard(data) {
   const { standings, roundsPlayed, championshipComplete } = data;
   const head = document.getElementById('sidebar-leaderboard-head');
   const body = document.getElementById('sidebar-leaderboard-body');
   if (!head || !body) return;
 
-  // Compact: rank, name, per-round scores (abbreviated), total, alive
   const roundCols = [1, 2, 3, 4, 5, 6];
   const shortLabels = { 1: 'R1', 2: 'R2', 3: 'S16', 4: 'E8', 5: 'F4', 6: 'CH' };
 
@@ -833,7 +647,7 @@ function renderSidebarLeaderboard(data) {
       return `<td class="lb-round" style="padding:0.25rem 0.1rem"><span class="round-pts${pts > 0 ? ' has-pts' : ''}" style="font-size:0.8rem">${pts}</span></td>`;
     }).join('');
 
-    return `<tr class="${rowClass}">
+    return `<tr class="${rowClass}" onclick="showTeamDetail(${s.contestantId}, '${s.name.replace(/'/g, "\\'")}')">
       <td class="lb-rank" style="padding:0.25rem 0.15rem"><span class="rank-badge ${rankClass}" style="width:22px; height:22px; font-size:0.7rem">${rank}</span></td>
       <td class="lb-name" style="padding:0.25rem 0.3rem; font-size:0.8rem; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><strong>${s.name}</strong></td>
       <td style="padding:0.25rem 0.15rem; text-align:center"><span class="alive-count" style="font-size:0.75rem">${s.teamsAlive}</span></td>
@@ -849,6 +663,7 @@ async function showTeamDetail(contestantId, name) {
   if (!contestant) return;
 
   const card = document.getElementById('team-details-card');
+  if (!card) return;
   card.style.display = 'block';
   document.getElementById('detail-name').textContent = `${name}'s Teams`;
 
@@ -873,42 +688,6 @@ async function showTeamDetail(contestantId, name) {
     .join('');
 }
 
-// ─── Scenarios ───
-async function loadScenarios() {
-  const session = API.getSession();
-  if (!session.gameCode) return;
-
-  try {
-    const data = await API.getScenarios(session.gameCode);
-    const container = document.getElementById('scenarios-container');
-    const info = document.getElementById('scenarios-info');
-
-    if (!data.available) {
-      info.textContent = data.message;
-      container.innerHTML = '';
-      return;
-    }
-
-    info.textContent = `${data.teamsAlive.length} teams remain. ${data.scenarios.length} possible outcomes:`;
-
-    container.innerHTML = data.scenarios
-      .map((s, i) => {
-        const standingsHtml = s.standings
-          .map((st, j) => `<span class="rank-entry">${j + 1}. ${st.name} (${st.score})</span>`)
-          .join('');
-
-        return `<div class="scenario-card">
-          <h4>Scenario ${i + 1}</h4>
-          <p class="scenario-desc">${s.description}</p>
-          <div class="scenario-standings">${standingsHtml}</div>
-        </div>`;
-      })
-      .join('');
-  } catch (e) {
-    showToast(e.message);
-  }
-}
-
 // ─── Test Mode ───
 async function resetAndReload() {
   try {
@@ -927,31 +706,21 @@ async function resetAndReload() {
 async function quickTest() {
   const name = document.getElementById('test-name').value.trim() || 'TestPlayer';
   try {
-    // Wipe any old data first
     await fetch('/api/test/reset', { method: 'POST' });
     API.clearSession();
 
-    // Create game
     const game = await API.createGame('Test Game', 20);
-
-    // Join as human
     const data = await API.join(name, game.gameCode);
     API.setSession({ ...data, name });
 
-    // Fill with bots
     await fetch('/api/test/fill-game/' + game.gameCode, { method: 'POST' });
-
-    // Start draft
     await API.startDraft(game.gameCode);
 
     enterGame(game.gameCode);
     showToast('Test game ready! Bots joined & draft started.');
 
-    // Mark as test game and show toolbar
     sessionStorage.setItem('mm_test_game', 'true');
     document.getElementById('test-toolbar').style.display = 'flex';
-
-    setTimeout(() => switchTab('draft'), 800);
   } catch (e) {
     showToast(e.message);
   }
@@ -994,9 +763,7 @@ async function testSimulateTournamentRound() {
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.error || 'Simulate failed');
     showToast(data.message + (data.complete ? ' — Tournament complete!' : ''));
-    // Refresh sidebar leaderboard + main tab
-    loadSidebarLeaderboard();
-    switchTab('draft');
+    loadLeaderboard();
   } catch (e) {
     showToast(e.message);
   }
@@ -1004,7 +771,6 @@ async function testSimulateTournamentRound() {
 
 // ─── Init ───
 (function init() {
-  // Auto-fill join code from URL query parameter
   const urlCode = new URLSearchParams(window.location.search).get('code');
   if (urlCode) {
     const joinCodeEl = document.getElementById('join-code');
@@ -1016,13 +782,11 @@ async function testSimulateTournamentRound() {
     API.me()
       .then(() => {
         enterGame(session.gameCode);
-        // Restore test toolbar if this was a test game
         if (sessionStorage.getItem('mm_test_game') === 'true') {
           document.getElementById('test-toolbar').style.display = 'flex';
         }
       })
       .catch(() => {
-        // Server doesn't recognize this session (DB was wiped, etc.)
         API.clearSession();
         sessionStorage.removeItem('mm_test_game');
         document.getElementById('landing-page').style.display = '';

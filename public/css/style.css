@@ -195,51 +195,9 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════
-   NAVIGATION TABS
+   GAME CONTENT
    ═══════════════════════════════════════════ */
-.nav-tabs {
-  display: flex;
-  background: var(--primary-dark);
-  border-bottom: 2px solid rgba(244,121,32,0.2);
-  position: sticky;
-  top: 0;
-  z-index: 90;
-  flex-shrink: 0;
-}
-
-.nav-tabs button {
-  flex: 1;
-  padding: 0.85rem;
-  border: none;
-  background: none;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.nav-tabs button:hover {
-  color: rgba(255,255,255,0.8);
-  background: rgba(255,255,255,0.05);
-}
-
-.nav-tabs button.active {
-  color: white;
-  border-bottom-color: var(--orange);
-  background: rgba(244,121,32,0.08);
-}
-
-/* ═══════════════════════════════════════════
-   PAGE CONTAINERS
-   ═══════════════════════════════════════════ */
-.page { display: none; padding: 1rem; max-width: 1400px; margin: 0 auto; }
-.page.active { display: block; animation: fadeIn 0.25s ease; }
+.game-content { padding: 1rem; max-width: 1400px; margin: 0 auto; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
@@ -1533,8 +1491,7 @@ td.round-pending {
   .header-right { min-width: 60px; }
   .header .game-code { font-size: 0.82rem; padding: 0.25rem 0.6rem; }
   .game-code-display-large { font-size: 1.8rem; letter-spacing: 4px; }
-  .page { padding: 0.75rem; }
-  .nav-tabs button { padding: 0.7rem 0.5rem; font-size: 0.75rem; }
+  .game-content { padding: 0.75rem; }
   .leaderboard-table th { font-size: 0.55rem; padding: 0.3rem 0.25rem; }
   .leaderboard-table td { font-size: 0.82rem; padding: 0.3rem 0.25rem; }
   .leaderboard-table td.lb-name { font-size: 0.82rem; }
