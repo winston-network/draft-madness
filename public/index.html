@@ -18,11 +18,47 @@
       <p class="landing-tagline">Draft your teams. Track your scores. Win the pot.</p>
       <p class="landing-subtitle">A new take on March Madness brackets &mdash; don't get busted!</p>
       <div class="landing-forms">
-        <div class="card" style="max-width:400px; margin:0 auto">
-          <h2>Demo</h2>
-          <p style="font-size:0.9rem; margin-bottom:0.75rem; opacity:0.7">Try it out — creates a game with 7 bot players and drops you in.</p>
-          <input type="text" id="test-name" placeholder="Your name" value="TestPlayer">
-          <button class="btn btn-accent btn-lg" onclick="quickTest()" style="width:100%">Launch Demo</button>
+        <div class="landing-cards">
+          <div class="card" style="max-width:400px">
+            <h2>Import Draft</h2>
+            <p style="font-size:0.9rem; margin-bottom:0.75rem; opacity:0.7">Already drafted? Import your results from a spreadsheet.</p>
+            <input type="text" id="import-game-name" placeholder="Game name (e.g. Office Pool 2026)">
+            <div class="import-file-row">
+              <label class="btn btn-sm btn-primary import-file-label">
+                Choose .xlsx file
+                <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="onImportFileChange(this)">
+              </label>
+              <span id="import-file-name" class="import-file-name">No file chosen</span>
+            </div>
+            <div class="import-divider"><span>or</span></div>
+            <input type="text" id="import-sheets-url" placeholder="Google Sheets URL (public link)">
+            <button class="btn btn-accent btn-lg" id="import-preview-btn" onclick="previewImport()" style="width:100%">Preview Import</button>
+          </div>
+
+          <div class="card" style="max-width:400px">
+            <h2>Demo</h2>
+            <p style="font-size:0.9rem; margin-bottom:0.75rem; opacity:0.7">Try it out — creates a game with 7 bot players and drops you in.</p>
+            <input type="text" id="test-name" placeholder="Your name" value="TestPlayer">
+            <button class="btn btn-accent btn-lg" onclick="quickTest()" style="width:100%">Launch Demo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import Preview Overlay -->
+      <div id="import-preview-overlay" class="import-overlay" style="display:none">
+        <div class="import-overlay-content">
+          <div class="import-overlay-header">
+            <h2>Import Preview</h2>
+            <button class="btn btn-sm" onclick="closeImportPreview()">✕</button>
+          </div>
+          <div id="import-messages"></div>
+          <div class="import-grid-scroll">
+            <table class="import-grid" id="import-preview-grid"></table>
+          </div>
+          <div class="import-overlay-footer">
+            <button class="btn btn-sm" onclick="closeImportPreview()">Cancel</button>
+            <button class="btn btn-accent btn-lg" id="import-confirm-btn" onclick="confirmImport()" disabled>Confirm Import</button>
+          </div>
         </div>
       </div>
     </div>

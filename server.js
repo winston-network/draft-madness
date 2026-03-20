@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({ origin: true }));
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 
 // Cache-bust: replace __BUILD__ in HTML with startup timestamp
 const fs = require('fs');
@@ -27,6 +27,7 @@ app.use('/api/games', require('./routes/games'));
 app.use('/api/draft', require('./routes/draft'));
 app.use('/api/scores', require('./routes/scores'));
 app.use('/api/test', require('./routes/test'));
+app.use('/api/import', require('./routes/import'));
 
 // Teams endpoint
 app.get('/api/teams', (req, res) => {

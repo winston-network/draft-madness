@@ -96,5 +96,18 @@ const API = (() => {
 
     // Teams
     getTeams: () => request('/teams'),
+
+    // Import
+    importPreview: (gameName, fileBase64, sheetsUrl) =>
+      request('/import/preview', {
+        method: 'POST',
+        body: JSON.stringify({ gameName, file: fileBase64, sheetsUrl }),
+      }),
+
+    importConfirm: (gameName, fileBase64, sheetsUrl) =>
+      request('/import/confirm', {
+        method: 'POST',
+        body: JSON.stringify({ gameName, file: fileBase64, sheetsUrl }),
+      }),
   };
 })();

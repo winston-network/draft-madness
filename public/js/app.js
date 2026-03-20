@@ -704,6 +704,171 @@ async function testSimulateTournamentRound() {
   }
 }
 
+// ─── Import Draft ───
+let importFileBase64 = null;
+
+function onImportFileChange(input) {
+  const fileNameEl = document.getElementById('import-file-name');
+  if (input.files.length > 0) {
+    fileNameEl.textContent = input.files[0].name;
+    // Read to base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      importFileBase64 = reader.result.split(',')[1]; // strip data:...;base64, prefix
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    fileNameEl.textContent = 'No file chosen';
+    importFileBase64 = null;
+  }
+}
+
+async function previewImport() {
+  const gameName = document.getElementById('import-game-name').value.trim();
+  const sheetsUrl = document.getElementById('import-sheets-url').value.trim();
+
+  if (!gameName) return showToast('Enter a game name');
+  if (!importFileBase64 && !sheetsUrl) return showToast('Upload a file or enter a Google Sheets URL');
+
+  const btn = document.getElementById('import-preview-btn');
+  btn.disabled = true;
+  btn.textContent = 'Parsing...';
+
+  try {
+    const data = await API.importPreview(gameName, importFileBase64 || undefined, sheetsUrl || undefined);
+    renderImportPreview(data);
+  } catch (e) {
+    showToast(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Preview Import';
+  }
+}
+
+function renderImportPreview(data) {
+  const overlay = document.getElementById('import-preview-overlay');
+  const grid = document.getElementById('import-preview-grid');
+  const messages = document.getElementById('import-messages');
+  const confirmBtn = document.getElementById('import-confirm-btn');
+
+  // Messages
+  let msgHtml = '';
+  if (data.warnings.length > 0) {
+    msgHtml += '<div class="import-warnings">';
+    msgHtml += `<strong>Fuzzy matches (${data.warnings.length}):</strong> `;
+    msgHtml += data.warnings.map(w => `"${w.raw}" → ${w.resolved}`).join(', ');
+    msgHtml += '</div>';
+  }
+  if (data.errors.length > 0) {
+    msgHtml += '<div class="import-errors">';
+    msgHtml += `<strong>Unmatched teams (${data.errors.length}):</strong> `;
+    msgHtml += data.errors.map(e => `"${e.raw}" (R${e.round}, ${e.contestant})`).join(', ');
+    msgHtml += '</div>';
+  }
+  if (data.validationErrors.length > 0) {
+    msgHtml += '<div class="import-errors">';
+    msgHtml += data.validationErrors.map(e => `<div>${e}</div>`).join('');
+    msgHtml += '</div>';
+  }
+  if (data.canConfirm) {
+    msgHtml += `<div class="import-success">${data.resolved} picks resolved. Ready to import "${data.gameName}".</div>`;
+  }
+  messages.innerHTML = msgHtml;
+
+  // Grid
+  let html = '<thead><tr><th>Rd</th>';
+  for (const name of data.contestants) {
+    html += `<th>${name}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  data.grid.forEach((row, i) => {
+    html += `<tr><td class="import-round-num">${i + 1}</td>`;
+    for (const cell of row) {
+      if (cell.error) {
+        html += `<td class="import-cell import-error" title="${cell.raw}">${cell.raw}</td>`;
+      } else if (cell.matchType === 'fuzzy') {
+        html += `<td class="import-cell import-fuzzy" title="Matched from: ${cell.raw}">(${cell.seed}) ${cell.team}</td>`;
+      } else if (cell.team) {
+        html += `<td class="import-cell import-exact">(${cell.seed}) ${cell.team}</td>`;
+      } else {
+        html += `<td class="import-cell import-empty">—</td>`;
+      }
+    }
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  grid.innerHTML = html;
+
+  confirmBtn.disabled = !data.canConfirm;
+  overlay.style.display = 'flex';
+}
+
+function closeImportPreview() {
+  document.getElementById('import-preview-overlay').style.display = 'none';
+}
+
+async function confirmImport() {
+  const gameName = document.getElementById('import-game-name').value.trim();
+  const sheetsUrl = document.getElementById('import-sheets-url').value.trim();
+  const btn = document.getElementById('import-confirm-btn');
+
+  btn.disabled = true;
+  btn.textContent = 'Importing...';
+
+  try {
+    const data = await API.importConfirm(gameName, importFileBase64 || undefined, sheetsUrl || undefined);
+    closeImportPreview();
+    showToast(`Game imported! Code: ${data.gameCode}`);
+    enterGameAsViewer(data.gameCode);
+  } catch (e) {
+    showToast(e.message);
+    btn.disabled = false;
+    btn.textContent = 'Confirm Import';
+  }
+}
+
+function enterGameAsViewer(code) {
+  // Store game code without a session token (viewer mode)
+  localStorage.setItem('mm_game_code', code);
+  localStorage.removeItem('mm_token');
+  localStorage.removeItem('mm_contestant_id');
+  localStorage.removeItem('mm_name');
+
+  document.getElementById('landing-page').style.display = 'none';
+  document.getElementById('game-page').style.display = 'block';
+
+  // Load game state and draft board directly
+  (async () => {
+    try {
+      const game = await API.getGame(code);
+      gameState = game;
+
+      const state = await API.getDraftState(code);
+      draftState = state;
+      renderDraftGrid(state);
+
+      // Show leaderboard sidebar
+      const teamsCard = document.getElementById('sidebar-teams-card');
+      const sidebarLB = document.getElementById('sidebar-leaderboard');
+      if (teamsCard) teamsCard.style.display = 'none';
+      if (sidebarLB) sidebarLB.style.display = '';
+      loadLeaderboard();
+
+      // Show status bar as complete
+      const bar = document.getElementById('status-bar');
+      const statusText = document.getElementById('status-text');
+      bar.style.display = 'flex';
+      bar.className = 'status-bar complete';
+      statusText.textContent = 'Imported draft — scores are live.';
+      document.getElementById('timer-display').textContent = '';
+    } catch (e) {
+      showToast(e.message);
+    }
+  })();
+}
+
 // ─── Init ───
 (function init() {
   const urlCode = new URLSearchParams(window.location.search).get('code');
