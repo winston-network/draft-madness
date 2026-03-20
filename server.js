@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { getDb } = require('./db/database');
-const { updateScores } = require('./services/espn');
+const { updateScores, shouldPollNow } = require('./services/espn');
 const { checkExpiredPicks } = require('./services/timer');
 
 const app = express();
@@ -39,26 +39,55 @@ app.get('/api/teams', (req, res) => {
 getDb();
 console.log('Database initialized');
 
-// Poll ESPN for scores every 60 seconds during tournament
-let scorePoller = null;
+// Smart ESPN score polling — only polls during game windows
+let scorePollerTimeout = null;
 function startScorePoller() {
-  if (scorePoller) return;
-  scorePoller = setInterval(async () => {
+  if (scorePollerTimeout) return;
+
+  async function pollCycle() {
     try {
       const db = getDb();
       const activeGames = db
-        .prepare("SELECT COUNT(*) as c FROM games WHERE status = 'active'")
+        .prepare("SELECT COUNT(*) as c FROM games WHERE status IN ('active', 'complete')")
         .get();
+
       if (activeGames.c > 0) {
-        const result = await updateScores(db);
-        if (result.updated > 0) {
-          console.log(`Updated ${result.updated} tournament results`);
+        // First poll always fetches schedule so we know the day's game times
+        const decision = shouldPollNow();
+
+        if (decision.shouldPoll) {
+          const result = await updateScores(db);
+          if (result.updated > 0) {
+            console.log(`ESPN: updated ${result.updated} results`);
+          }
+          const s = result.schedule;
+          if (s) {
+            console.log(`ESPN: ${s.completedGames}/${s.totalGames} games final${s.gamesInProgress ? ' (LIVE)' : ''}`);
+          }
+        } else {
+          // Still fetch schedule periodically so we know when games start
+          if (!decision.schedule) {
+            await updateScores(db); // initial schedule fetch
+          }
+          console.log(`ESPN: skipping poll — ${decision.reason}`);
         }
+
+        const nextMs = decision.nextCheckMs || 10 * 60 * 1000;
+        const mins = Math.round(nextMs / 60000);
+        console.log(`ESPN: next check in ${mins} min`);
+        scorePollerTimeout = setTimeout(pollCycle, nextMs);
+      } else {
+        // No active games in our app, check again in 5 minutes
+        scorePollerTimeout = setTimeout(pollCycle, 5 * 60 * 1000);
       }
     } catch (err) {
       console.error('Score poll error:', err.message);
+      scorePollerTimeout = setTimeout(pollCycle, 10 * 60 * 1000);
     }
-  }, 60000);
+  }
+
+  // First poll after 10 seconds (let server start up)
+  scorePollerTimeout = setTimeout(pollCycle, 10000);
 }
 
 // Check for expired draft pick timers every 5 seconds

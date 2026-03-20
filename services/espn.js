@@ -1,12 +1,24 @@
 /**
  * ESPN API integration for live NCAA tournament scores.
  * Uses the public ESPN API (no key required).
+ *
+ * Smart polling logic:
+ * - No polling before the first game tip time of the day
+ * - Every 10 min from first tip until all games are final
+ * - Stops once all games for the day are final (scores posted)
+ * - No polling on days with no tournament games
+ * - Window extends 5 hours past last tip time as a safety net
  */
 
 const https = require('https');
 
 const SCOREBOARD_URL =
   'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard';
+
+// Polling state
+let lastPollTime = null;
+let todaySchedule = null;
+let scheduleDate = null; // YYYYMMDD of cached schedule
 
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
@@ -49,13 +61,11 @@ function getTournamentRound(event) {
   if (lower.includes('final four') || lower.includes('semifinal')) return 5;
   if (lower.includes('championship') || lower.includes('national championship')) return 6;
 
-  // Fallback: try season type info
   return null;
 }
 
 /**
  * Parse ESPN scoreboard data into our format.
- * Returns array of game results: { espnGameId, teamId, opponentId, won, score, opponentScore, round }
  */
 function parseResults(data, teamLookup) {
   const results = [];
@@ -101,25 +111,129 @@ function parseResults(data, teamLookup) {
 }
 
 /**
+ * Analyze ESPN scoreboard data to determine game schedule status.
+ */
+function analyzeSchedule(data) {
+  const info = {
+    hasGames: false,
+    gamesInProgress: false,
+    allComplete: false,
+    firstTipTime: null,
+    lastTipTime: null,
+    totalGames: 0,
+    completedGames: 0,
+  };
+
+  if (!data.events || data.events.length === 0) return info;
+
+  const tourneyEvents = data.events.filter((e) => getTournamentRound(e) !== null);
+  if (tourneyEvents.length === 0) return info;
+
+  info.hasGames = true;
+  info.totalGames = tourneyEvents.length;
+
+  let completed = 0;
+  let inProgress = 0;
+  let earliestTip = null;
+  let latestTip = null;
+
+  for (const event of tourneyEvents) {
+    const competition = event.competitions && event.competitions[0];
+    if (!competition || !competition.status || !competition.status.type) continue;
+
+    const statusType = competition.status.type;
+
+    if (statusType.completed) {
+      completed++;
+    } else if (statusType.name === 'STATUS_IN_PROGRESS' || statusType.state === 'in') {
+      inProgress++;
+    }
+
+    // Track tip times for all games (completed or not)
+    const startTime = competition.date ? new Date(competition.date) : null;
+    if (startTime) {
+      if (!earliestTip || startTime < earliestTip) earliestTip = startTime;
+      if (!latestTip || startTime > latestTip) latestTip = startTime;
+    }
+  }
+
+  info.completedGames = completed;
+  info.gamesInProgress = inProgress > 0;
+  info.allComplete = completed === tourneyEvents.length;
+  info.firstTipTime = earliestTip ? earliestTip.toISOString() : null;
+  info.lastTipTime = latestTip ? latestTip.toISOString() : null;
+
+  return info;
+}
+
+/**
+ * Should we poll right now? Returns { shouldPoll, reason, nextCheckMs }
+ *
+ * Rules:
+ * 1. No games today → don't poll, check schedule again in 1 hour
+ * 2. Before first tip time → don't poll, check at first tip time
+ * 3. All games final → don't poll, done for the day
+ * 4. Between first tip and 5h after last tip → poll every 10 min
+ * 5. Past 5h after last tip → stop (safety net expired)
+ */
+function shouldPollNow() {
+  const now = Date.now();
+
+  if (!todaySchedule || !todaySchedule.hasGames) {
+    return { shouldPoll: false, reason: 'No tournament games today', nextCheckMs: 60 * 60 * 1000 };
+  }
+
+  if (todaySchedule.allComplete) {
+    return { shouldPoll: false, reason: 'All games final', nextCheckMs: 60 * 60 * 1000 };
+  }
+
+  const firstTip = todaySchedule.firstTipTime ? new Date(todaySchedule.firstTipTime).getTime() : null;
+  const lastTip = todaySchedule.lastTipTime ? new Date(todaySchedule.lastTipTime).getTime() : null;
+
+  if (firstTip && now < firstTip) {
+    const untilTip = firstTip - now;
+    return { shouldPoll: false, reason: 'Before first tip', nextCheckMs: Math.min(untilTip + 60000, 30 * 60 * 1000) };
+  }
+
+  // Safety net: stop 5 hours after last tip time
+  if (lastTip && now > lastTip + 5 * 60 * 60 * 1000) {
+    return { shouldPoll: false, reason: 'Past 5h after last tip', nextCheckMs: 60 * 60 * 1000 };
+  }
+
+  // We're in the game window — poll every 10 minutes
+  return { shouldPoll: true, reason: 'Game window active', nextCheckMs: 10 * 60 * 1000 };
+}
+
+/**
+ * Get current polling status for the frontend.
+ */
+function getPollStatus() {
+  const decision = shouldPollNow();
+  return {
+    lastPollTime,
+    schedule: todaySchedule,
+    ...decision,
+  };
+}
+
+/**
  * Update tournament results in the database by polling ESPN.
  */
 async function updateScores(db) {
-  // Build ESPN ID -> our team ID lookup
   const teams = db.prepare('SELECT id, espn_id FROM teams').all();
   const teamLookup = {};
   teams.forEach((t) => {
     if (t.espn_id) teamLookup[t.espn_id] = t.id;
   });
 
-  // Check tournament dates (March-April)
   const now = new Date();
   const month = now.getMonth() + 1;
   if (month < 3 || month > 4) {
     return { updated: 0, message: 'Outside tournament window' };
   }
 
-  // Fetch scores for today and yesterday (to catch late games)
-  const dates = [formatDate(now)];
+  const todayStr = formatDate(now);
+  const dates = [todayStr];
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
   dates.push(formatDate(yesterday));
@@ -129,6 +243,13 @@ async function updateScores(db) {
   for (const date of dates) {
     try {
       const data = await fetchScoreboard(date);
+
+      // Update schedule cache for today
+      if (date === todayStr) {
+        todaySchedule = analyzeSchedule(data);
+        scheduleDate = todayStr;
+      }
+
       const results = parseResults(data, teamLookup);
 
       const upsert = db.prepare(`
@@ -154,11 +275,12 @@ async function updateScores(db) {
     }
   }
 
-  return { updated: totalUpdated };
+  lastPollTime = now.toISOString();
+  return { updated: totalUpdated, schedule: todaySchedule };
 }
 
 function formatDate(d) {
   return d.toISOString().slice(0, 10).replace(/-/g, '');
 }
 
-module.exports = { updateScores, fetchScoreboard, parseResults };
+module.exports = { updateScores, fetchScoreboard, parseResults, shouldPollNow, getPollStatus };

@@ -91,6 +91,7 @@ const API = (() => {
 
     // Scores
     getLeaderboard: (code) => request(`/scores/${code}/leaderboard`),
+    refreshScores: (code) => request(`/scores/${code}/refresh`, { method: 'POST' }),
     getScenarios: (code) => request(`/scores/${code}/scenarios`),
 
     // Teams

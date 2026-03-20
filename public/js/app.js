@@ -8,6 +8,7 @@ let sseSource = null;
 let pollInterval = null;
 let countdownInterval = null;
 let pickPending = false;
+let leaderboardPollInterval = null;
 
 // ─── Toast ───
 function showToast(msg, ms = 3000) {
@@ -601,8 +602,114 @@ async function loadLeaderboard() {
     lastLeaderboardData = data;
     renderPrizes(data.prizes);
     renderLeaderboard(data);
+    renderLiveIndicator(data);
+    startLeaderboardPolling(data);
   } catch (e) {
     showToast(e.message);
+  }
+}
+
+function startLeaderboardPolling(data) {
+  if (leaderboardPollInterval) return;
+  if (data.gameStatus !== 'active') return;
+
+  // Match the server's poll interval — only refresh when ESPN is actively polling
+  const pollMs = data.pollStatus && data.pollStatus.shouldPoll
+    ? Math.max(data.pollStatus.nextCheckMs || 600000, 60000) // at least 1 min
+    : 600000; // 10 min default
+
+  leaderboardPollInterval = setInterval(async () => {
+    const session = API.getSession();
+    if (!session.gameCode) return;
+    try {
+      const fresh = await API.getLeaderboard(session.gameCode);
+      lastLeaderboardData = fresh;
+      renderLeaderboard(fresh);
+      renderSidebarLeaderboard(fresh);
+      renderLiveIndicator(fresh);
+
+      // Adjust interval if poll status changed
+      if (fresh.pollStatus && !fresh.pollStatus.shouldPoll && fresh.pollStatus.reason === 'All games final') {
+        stopLeaderboardPolling();
+      }
+    } catch (_) {}
+  }, pollMs);
+}
+
+function stopLeaderboardPolling() {
+  if (leaderboardPollInterval) {
+    clearInterval(leaderboardPollInterval);
+    leaderboardPollInterval = null;
+  }
+}
+
+function renderLiveIndicator(data) {
+  let indicator = document.getElementById('live-scores-indicator');
+  if (!indicator) {
+    const table = document.querySelector('#tab-scores .leaderboard-table') ||
+                  document.querySelector('#tab-scores table');
+    if (!table) return;
+    indicator = document.createElement('div');
+    indicator.id = 'live-scores-indicator';
+    indicator.className = 'live-indicator';
+    table.parentNode.insertBefore(indicator, table);
+  }
+
+  if (data.gameStatus === 'active') {
+    const ps = data.pollStatus || {};
+    const schedule = ps.schedule || {};
+    const lastPoll = ps.lastPollTime
+      ? `Updated ${new Date(ps.lastPollTime).toLocaleTimeString()}`
+      : '';
+
+    let statusText = '';
+    if (schedule.gamesInProgress) {
+      statusText = `LIVE — ${schedule.completedGames}/${schedule.totalGames} games final`;
+    } else if (schedule.hasGames && !schedule.allComplete) {
+      const nextTip = schedule.firstTipTime ? new Date(schedule.firstTipTime) : null;
+      if (nextTip && nextTip > new Date()) {
+        statusText = `Games start ${nextTip.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+      } else {
+        statusText = `${schedule.completedGames}/${schedule.totalGames} games final`;
+      }
+    } else if (schedule.allComplete) {
+      statusText = 'All games final';
+    } else {
+      statusText = 'No games today';
+    }
+
+    const isLive = schedule.gamesInProgress;
+    indicator.innerHTML = `
+      ${isLive ? '<span class="live-dot"></span>' : ''}
+      <span class="live-text">${isLive ? 'LIVE' : 'ESPN'}</span>
+      <span class="live-detail">${statusText}${lastPoll ? ' · ' + lastPoll : ''}</span>
+      <button class="btn btn-sm live-refresh-btn" onclick="manualRefreshScores()">Refresh</button>
+    `;
+    indicator.style.display = 'flex';
+  } else if (data.gameStatus === 'complete') {
+    indicator.innerHTML = `<span class="live-text" style="color:var(--gold)">FINAL</span>`;
+    indicator.style.display = 'flex';
+  } else {
+    indicator.style.display = 'none';
+  }
+}
+
+async function manualRefreshScores() {
+  const session = API.getSession();
+  if (!session.gameCode) return;
+  const btn = document.querySelector('.live-refresh-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Syncing...'; }
+  try {
+    const data = await API.refreshScores(session.gameCode);
+    lastLeaderboardData = data;
+    renderLeaderboard(data);
+    renderSidebarLeaderboard(data);
+    renderLiveIndicator(data);
+    showToast(`ESPN sync complete (${data.espnResult?.updated || 0} results updated)`);
+  } catch (e) {
+    showToast('ESPN sync failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
   }
 }
 
@@ -685,6 +792,8 @@ async function loadSidebarLeaderboard() {
     renderSidebarLeaderboard(data);
     // Also update the main leaderboard tab if it exists
     renderLeaderboard(data);
+    // Start auto-polling if game is active (tournament in progress)
+    startLeaderboardPolling(data);
   } catch (_) {}
 }
 
