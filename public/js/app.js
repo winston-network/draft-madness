@@ -252,9 +252,9 @@ function renderDraftGrid(state) {
           ? `<img class="pick-logo" src="${pick.logo_url}" alt="" onerror="this.style.display='none'">`
           : '';
         html += `<div class="pick-cell filled">
+          <span class="pick-seed-num">${pick.seed}</span>
           ${logoHtml}
           <span class="pick-team">${pick.team_name}</span>
-          <span class="pick-seed">${pick.seed} seed</span>
         </div>`;
       } else if (isCurrent) {
         html += `<div class="pick-cell current-pick">

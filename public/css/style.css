@@ -311,6 +311,13 @@ input:focus {
 }
 .btn-accent:hover { box-shadow: 0 4px 16px rgba(13,27,46,0.4); }
 
+.btn-royal {
+  background: linear-gradient(135deg, #1e56a0 0%, #163d7a 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(30,86,160,0.35);
+}
+.btn-royal:hover { box-shadow: 0 4px 16px rgba(30,86,160,0.5); }
+
 .btn-success {
   background: linear-gradient(135deg, var(--success), #059669);
   color: white;
@@ -715,6 +722,7 @@ input:focus {
   min-height: 0;
   overflow: hidden;
   transition: all 0.15s;
+  position: relative;
 }
 
 .pick-cell.empty {
@@ -755,6 +763,17 @@ input:focus {
   font-size: 0.55rem;
   color: var(--text-secondary);
   font-weight: 700;
+}
+
+.pick-cell .pick-seed-num {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: 0.5rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  z-index: 2;
+  line-height: 1;
 }
 
 /* Current round cells — logo fills like previous, text hidden */
