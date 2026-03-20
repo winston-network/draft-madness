@@ -704,6 +704,20 @@ async function testSimulateTournamentRound() {
   }
 }
 
+// ─── Landing Mode Toggle ───
+function showLandingMode(mode) {
+  const importCard = document.getElementById('landing-import');
+  const demoCard = document.getElementById('landing-demo');
+  const buttons = document.querySelectorAll('.mode-btn');
+
+  importCard.style.display = mode === 'import' ? '' : 'none';
+  demoCard.style.display = mode === 'demo' ? '' : 'none';
+
+  buttons.forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase().includes(mode));
+  });
+}
+
 // ─── Import Draft ───
 let importFileBase64 = null;
 

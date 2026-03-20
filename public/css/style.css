@@ -419,7 +419,7 @@ input:focus {
   flex-wrap: wrap;
   justify-content: center;
   width: 100%;
-  max-width: 900px;
+  max-width: 700px;
   animation: fadeIn 0.7s ease 0.45s both;
   position: relative;
   z-index: 1;
@@ -1471,17 +1471,36 @@ td.round-pending {
 /* ═══════════════════════════════════════════
    IMPORT DRAFT
    ═══════════════════════════════════════════ */
-.landing-cards {
+.landing-mode-toggle {
   display: flex;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100%;
+  gap: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  margin-bottom: 1rem;
 }
 
-.landing-cards > .card {
+.mode-btn {
   flex: 1;
-  min-width: 280px;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn.active {
+  background: var(--primary-light);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-btn:hover:not(.active) {
+  color: var(--text-secondary);
 }
 
 .import-file-row {
@@ -1660,8 +1679,6 @@ td.round-pending {
 }
 
 @media (max-width: 768px) {
-  .landing-cards { flex-direction: column; align-items: center; }
-  .landing-cards > .card { min-width: unset; width: 100%; }
   .import-overlay-content { min-width: unset; width: 100%; }
 }
 
