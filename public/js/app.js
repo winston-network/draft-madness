@@ -537,7 +537,7 @@ async function manualRefreshScores() {
   } catch (e) {
     showToast('ESPN sync failed: ' + e.message);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Refresh ESPN'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Update Scores'; }
   }
 }
 
