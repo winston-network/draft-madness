@@ -372,28 +372,10 @@ function updateStatusBar() {
 
   if (draftState.currentPick.isComplete) {
     bar.className = 'status-bar complete';
+    statusText.textContent = 'Draft complete! Scores are live.';
     if (timerEl) timerEl.textContent = '';
     if (pauseBtn) pauseBtn.style.display = 'none';
     stopCountdown();
-
-    // Show ESPN live status in the status bar
-    if (lastLeaderboardData && lastLeaderboardData.pollStatus) {
-      const ps = lastLeaderboardData.pollStatus;
-      const schedule = ps.schedule || {};
-      let liveText = 'Draft complete!';
-      if (schedule.gamesInProgress) {
-        liveText = `LIVE — ${schedule.completedGames}/${schedule.totalGames} games final`;
-      } else if (schedule.hasGames && !schedule.allComplete) {
-        liveText = `ESPN connected — ${schedule.completedGames}/${schedule.totalGames} games final`;
-      } else if (schedule.allComplete) {
-        liveText = 'All games final';
-      } else {
-        liveText = 'Draft complete — No games today';
-      }
-      statusText.innerHTML = `${liveText} <button class="btn btn-sm live-refresh-btn" onclick="manualRefreshScores()" style="margin-left:0.5rem; font-size:0.7rem; padding:0.2rem 0.5rem">Refresh ESPN</button>`;
-    } else {
-      statusText.textContent = 'Draft complete! Scores are live.';
-    }
     return;
   }
 
@@ -509,7 +491,6 @@ async function loadLeaderboard() {
     const data = await API.getLeaderboard(session.gameCode);
     lastLeaderboardData = data;
     renderLeaderboard(data);
-    renderLiveIndicator(data);
     startLeaderboardPolling(data);
   } catch (_) {}
 }
@@ -529,8 +510,6 @@ function startLeaderboardPolling(data) {
       const fresh = await API.getLeaderboard(session.gameCode);
       lastLeaderboardData = fresh;
       renderLeaderboard(fresh);
-      renderLiveIndicator(fresh);
-
       if (fresh.pollStatus && !fresh.pollStatus.shouldPoll && fresh.pollStatus.reason === 'All games final') {
         stopLeaderboardPolling();
       }
@@ -545,72 +524,20 @@ function stopLeaderboardPolling() {
   }
 }
 
-function renderLiveIndicator(data) {
-  let indicator = document.getElementById('live-scores-indicator');
-  if (!indicator) {
-    const table = document.querySelector('#sidebar-leaderboard .leaderboard-table') ||
-                  document.querySelector('.leaderboard-table');
-    if (!table) return;
-    indicator = document.createElement('div');
-    indicator.id = 'live-scores-indicator';
-    indicator.className = 'live-indicator';
-    table.parentNode.insertBefore(indicator, table);
-  }
-
-  if (data.gameStatus === 'active') {
-    const ps = data.pollStatus || {};
-    const schedule = ps.schedule || {};
-    const lastPoll = ps.lastPollTime
-      ? `Updated ${new Date(ps.lastPollTime).toLocaleTimeString()}`
-      : '';
-
-    let statusText = '';
-    if (schedule.gamesInProgress) {
-      statusText = `LIVE — ${schedule.completedGames}/${schedule.totalGames} games final`;
-    } else if (schedule.hasGames && !schedule.allComplete) {
-      const nextTip = schedule.firstTipTime ? new Date(schedule.firstTipTime) : null;
-      if (nextTip && nextTip > new Date()) {
-        statusText = `Games start ${nextTip.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
-      } else {
-        statusText = `${schedule.completedGames}/${schedule.totalGames} games final`;
-      }
-    } else if (schedule.allComplete) {
-      statusText = 'All games final';
-    } else {
-      statusText = 'No games today';
-    }
-
-    const isLive = schedule.gamesInProgress;
-    indicator.innerHTML = `
-      ${isLive ? '<span class="live-dot"></span>' : ''}
-      <span class="live-text">${isLive ? 'LIVE' : 'ESPN'}</span>
-      <span class="live-detail">${statusText}${lastPoll ? ' · ' + lastPoll : ''}</span>
-      <button class="btn btn-sm live-refresh-btn" onclick="manualRefreshScores()">Refresh</button>
-    `;
-    indicator.style.display = 'flex';
-  } else if (data.gameStatus === 'complete') {
-    indicator.innerHTML = `<span class="live-text" style="color:var(--gold)">FINAL</span>`;
-    indicator.style.display = 'flex';
-  } else {
-    indicator.style.display = 'none';
-  }
-}
-
 async function manualRefreshScores() {
   const session = API.getSession();
   if (!session.gameCode) return;
-  const btn = document.querySelector('.live-refresh-btn');
+  const btn = document.querySelector('.refresh-espn-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Syncing...'; }
   try {
     const data = await API.refreshScores(session.gameCode);
     lastLeaderboardData = data;
     renderLeaderboard(data);
-    renderLiveIndicator(data);
-    showToast(`ESPN sync complete (${data.espnResult?.updated || 0} results updated)`);
+    showToast(`ESPN sync: ${data.espnResult?.updated || 0} results updated`);
   } catch (e) {
     showToast('ESPN sync failed: ' + e.message);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Refresh ESPN'; }
   }
 }
 

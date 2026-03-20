@@ -50,8 +50,10 @@ async function fetchScoreboard(date) {
  * Determine tournament round from ESPN event data.
  */
 function getTournamentRound(event) {
-  const notes = event.notes || [];
-  const headline = (notes[0] && notes[0].headline) || '';
+  // Check both event-level and competition-level notes (ESPN uses competition.notes)
+  const eventNotes = event.notes || [];
+  const compNotes = (event.competitions && event.competitions[0] && event.competitions[0].notes) || [];
+  const headline = (compNotes[0] && compNotes[0].headline) || (eventNotes[0] && eventNotes[0].headline) || '';
   const lower = headline.toLowerCase();
 
   if (lower.includes('1st round') || lower.includes('first round')) return 1;

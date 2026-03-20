@@ -983,47 +983,6 @@ input:focus {
   border: 2px solid rgba(255,255,255,0.06);
 }
 
-/* Live scores indicator */
-.live-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.5rem;
-  background: rgba(5,10,20,0.6);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
-  font-size: 0.8rem;
-}
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #e53935;
-  animation: live-pulse 1.5s ease-in-out infinite;
-}
-@keyframes live-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 4px #e53935; }
-  50% { opacity: 0.4; box-shadow: 0 0 8px #e53935; }
-}
-.live-text {
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  font-size: 0.75rem;
-  color: #e53935;
-  letter-spacing: 0.05em;
-}
-.live-detail {
-  color: var(--text-muted);
-  font-size: 0.72rem;
-  flex: 1;
-}
-.live-refresh-btn {
-  padding: 0.2rem 0.6rem !important;
-  font-size: 0.7rem !important;
-  min-width: auto !important;
-}
-
 .leaderboard-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
