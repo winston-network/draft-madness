@@ -646,8 +646,9 @@ function stopLeaderboardPolling() {
 function renderLiveIndicator(data) {
   let indicator = document.getElementById('live-scores-indicator');
   if (!indicator) {
-    const table = document.querySelector('#tab-scores .leaderboard-table') ||
-                  document.querySelector('#tab-scores table');
+    const table = document.querySelector('#sidebar-leaderboard .leaderboard-table') ||
+                  document.querySelector('#tab-scores .leaderboard-table') ||
+                  document.querySelector('.leaderboard-table');
     if (!table) return;
     indicator = document.createElement('div');
     indicator.id = 'live-scores-indicator';
@@ -790,6 +791,7 @@ async function loadSidebarLeaderboard() {
     const data = await API.getLeaderboard(session.gameCode);
     lastLeaderboardData = data;
     renderSidebarLeaderboard(data);
+    renderLiveIndicator(data);
     // Also update the main leaderboard tab if it exists
     renderLeaderboard(data);
     // Start auto-polling if game is active (tournament in progress)
