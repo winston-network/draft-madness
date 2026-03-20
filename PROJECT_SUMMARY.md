@@ -17,6 +17,7 @@ A web app for a March Madness draft game. Up to 8 contestants draft NCAA tournam
 
 ## Tech Stack
 - **Backend**: Node.js + Express + SQLite (better-sqlite3, WAL mode)
+- **Spreadsheet parsing**: SheetJS (xlsx) for .xlsx and CSV import
 - **Frontend**: Vanilla HTML/CSS/JS (no framework, single-page, no tab navigation)
 - **Real-time**: Server-Sent Events (SSE) for live draft updates + lobby join notifications
 - **Live scores**: ESPN public API polling (every 60s during tournament)
@@ -37,9 +38,11 @@ march_madness/
 │   ├── games.js               # Create game, start draft (idempotent), tiebreaker
 │   ├── draft.js               # Draft state, make pick (atomic), SSE stream, timer, pause/resume
 │   ├── scores.js              # Leaderboard, scenarios
+│   ├── import.js              # Import draft results from spreadsheet (preview + confirm)
 │   └── test.js                # Bot testing endpoints (disabled in production)
 ├── services/
 │   ├── draft-engine.js        # Snake order, pick validation (prevents same player drafting same team)
+│   ├── import-engine.js       # Spreadsheet parsing, team alias/fuzzy matching, import execution
 │   ├── scoring.js             # Points calculation, prize distribution
 │   ├── scenarios.js           # Final Four/Championship what-if calculator
 │   ├── timer.js               # Pick countdown, auto-pick, pause/resume support
@@ -89,6 +92,12 @@ march_madness/
 - [x] Team detail expansion (click contestant to see their teams)
 - [x] Scenarios engine — backend ready, UI not yet added back
 - [x] ESPN API live score polling
+- [x] **Import Draft** — upload .xlsx or Google Sheets URL to import external draft results
+- [x] Team name fuzzy matching with 50+ aliases and Levenshtein fallback (threshold ≤ 3)
+- [x] Import preview overlay with color-coded grid (green=exact, yellow=fuzzy, red=error)
+- [x] Viewer mode — view imported game's draft board + leaderboard without a session token
+- [x] Landing page toggle between Import Draft and Demo modes
+- [x] Seed numbers displayed on draft board cells (orange, bottom-right)
 - [x] Demo mode (1-click game with 7 bots)
 - [x] Bot simulation toolbar (bot picks, auto-complete draft, sim tournament rounds)
 - [x] Tournament round simulation with seed-weighted results
@@ -103,6 +112,14 @@ march_madness/
 - [x] GitHub repo with automated push workflow
 
 ## What's NOT Built Yet
+
+### Priority: Draft Strategy Dashboard
+- [ ] **My Picks dashboard** — Personal view showing your drafted teams with seeds, regions, status
+- [ ] **538 win probabilities** — Integrate FiveThirtyEight deep-run projections per team (probability of reaching each round, not just first game)
+- [ ] **Upset article references** — Submit/store articles flagging potential upsets to inform strategy
+- [ ] **Value score advisor** — Recommend picks based on expected points (win probability × points per round, summed across all remaining rounds)
+
+### Backlog
 - [ ] Flexible player count (4/6/8 players)
 - [ ] Production branch (strip dev tools)
 - [ ] Admin dashboard

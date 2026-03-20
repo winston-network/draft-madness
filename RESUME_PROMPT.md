@@ -10,7 +10,7 @@ I'm building **Draft Madness**, a March Madness draft game web app at `/mnt/d/co
 
 **Tech**: Node.js/Express/SQLite backend, vanilla HTML/CSS/JS frontend, SSE for real-time, ESPN API for live scores.
 
-**Current state**: Single-page view (no tab navigation) with dark arena theme and hardwood court floor background. Demo mode on landing page (1-click game with 7 bots). Draft board with round-based layout, team logos filling cells. Sidebar swaps from available teams to inline leaderboard after draft completes. Digital scoreboard font (Orbitron) on all scores. Tournament round simulation for testing. Multiplayer infrastructure built (atomic joins, pick validation, pause/resume) but hidden behind demo mode until tested.
+**Current state**: Single-page view (no tab navigation) with dark arena theme and hardwood court floor background. Landing page has toggle between **Import Draft** (primary onboarding — upload .xlsx or Google Sheets URL) and **Demo** mode (1-click game with 7 bots). Import flow: preview overlay shows parsed 8×16 grid with fuzzy match highlighting, then confirm creates an active game. Draft board with round-based layout, team logos filling cells, seed numbers in bottom-right. Sidebar swaps from available teams to inline leaderboard after draft completes. Digital scoreboard font (Orbitron) on all scores. Tournament round simulation for testing. Multiplayer infrastructure built (atomic joins, pick validation, pause/resume) but hidden behind demo mode until tested.
 
 **Deployment**:
 - **GitHub**: https://github.com/winston-network/draft-madness (public, `winston-network` org)
@@ -55,21 +55,28 @@ git fetch origin && git reset --hard origin/main && rm -f march_madness.db* && p
 
 ## Quick Resume (for small tasks)
 
-Working on Draft Madness at `/mnt/d/coding_projects/march_madness`. Node.js/Express/SQLite web app for March Madness team drafting game. Single-page view (no tabs) with hardwood court background. Read `PROJECT_SUMMARY.md` for context. GitHub: `winston-network/draft-madness`. Run with `npm start`, test at `http://localhost:3000`. Replit update: `git fetch origin && git reset --hard origin/main && rm -f march_madness.db* && pkill node ; sleep 2 && npm start`
+Working on Draft Madness at `/mnt/d/coding_projects/march_madness`. Node.js/Express/SQLite web app for March Madness team drafting game. Single-page view (no tabs) with hardwood court background. Landing page toggles between Import Draft (.xlsx/Google Sheets) and Demo mode. Read `PROJECT_SUMMARY.md` for context. GitHub: `winston-network/draft-madness`. Run with `npm start`, test at `http://localhost:3000`. Replit update: `git fetch origin && git reset --hard origin/main && rm -f march_madness.db* && pkill node ; sleep 2 && npm start`
 
 ---
 
 ## Current TODO / Next Steps
 
-1. **Test multiplayer** — Iron out Create/Join flow, test with real concurrent users
-2. **Flexible player count** — Support 4, 6, or 8 players (adjust rounds/max-per-team)
-3. **Production branch** — Strip test toolbar, quick test, dev endpoints
-4. **Custom domain** — Finish `draftmadness2026.com` DNS setup (Railway + GoDaddy)
-5. **Re-enable Scenarios tab** — Backend is done, just need to add UI back
-6. **Admin dashboard** — Manage games, update team database yearly
-7. **User accounts** — Replace name+code auth with real accounts
-8. **Payment integration** — Buy-in collection
-9. **Mobile app** — React Native or Flutter, consuming the same JSON API
+### Priority: Draft Strategy Dashboard
+1. **My Picks dashboard** — Personal view of your drafted teams showing seeds, regions, and current status
+2. **538 win probabilities** — Integrate FiveThirtyEight tournament projections (not just first game — deep run probabilities through each round)
+3. **Upset articles** — Allow submitting reference articles flagging potential upsets to inform draft strategy
+4. **Value score advisor** — Recommend which teams to pick based on expected point accumulation (probability × points per round, summed across all rounds)
+
+### Backlog
+5. **Test multiplayer** — Iron out Create/Join flow, test with real concurrent users
+6. **Flexible player count** — Support 4, 6, or 8 players (adjust rounds/max-per-team)
+7. **Production branch** — Strip test toolbar, quick test, dev endpoints
+8. **Custom domain** — Finish `draftmadness2026.com` DNS setup (Railway + GoDaddy)
+9. **Re-enable Scenarios tab** — Backend is done, just need to add UI back
+10. **Admin dashboard** — Manage games, update team database yearly
+11. **User accounts** — Replace name+code auth with real accounts
+12. **Payment integration** — Buy-in collection
+13. **Mobile app** — React Native or Flutter, consuming the same JSON API
 
 ---
 

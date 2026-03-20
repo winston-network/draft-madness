@@ -6,6 +6,17 @@ Draft NCAA tournament teams with your friends, then watch the points roll in as 
 
 ## How It Works
 
+### Import Your Draft (Primary Flow)
+Already drafted with your group (spreadsheet, in-person, etc.)? Import the results:
+
+1. **Upload a .xlsx file** or paste a **Google Sheets URL** (public link)
+2. **Preview** — see the parsed grid with fuzzy team name matching
+3. **Confirm** — creates an active game with all 128 picks loaded
+4. **Track scores** — leaderboard updates live from ESPN
+
+Spreadsheet format: Row 1 = contestant names (columns B-I), Rows 2-17 = team picks per round.
+
+### Live Draft (Demo / Multiplayer)
 1. **Create a game** — get a 6-character code to share
 2. **Up to 8 players join** the lobby
 3. **Snake draft** — draw straws for order, then draft 16 rounds (each of the 64 teams can be drafted up to 2 times)
@@ -28,6 +39,7 @@ Tiebreaker: predict the total combined score of the championship game.
 ## Tech Stack
 
 - **Backend**: Node.js + Express + SQLite (better-sqlite3, WAL mode)
+- **Spreadsheet parsing**: SheetJS (xlsx) for .xlsx and CSV import
 - **Frontend**: Vanilla HTML/CSS/JS (single-page, no tabs)
 - **Real-time**: Server-Sent Events (SSE) for live draft updates
 - **Live scores**: ESPN public API polling
@@ -41,7 +53,7 @@ npm start
 # Open http://localhost:3000
 ```
 
-Click **Launch Demo** on the landing page to create a game with 7 bots for instant testing. Use the floating toolbar to simulate bot picks and tournament rounds.
+The landing page has two modes: **Import Draft** (upload a spreadsheet) and **Demo** (creates a game with 7 bots for instant testing). Use the floating toolbar in demo mode to simulate bot picks and tournament rounds.
 
 ## Deployment
 
@@ -63,8 +75,8 @@ git fetch origin && git reset --hard origin/main && rm -f march_madness.db* && p
 server.js              — Express entry point, polling, timer checker
 db/schema.sql          — Database schema (5 tables)
 db/database.js         — SQLite init, migrations, 64-team seed data
-routes/                — API routes (auth, games, draft, scores, test)
-services/              — Business logic (draft engine, scoring, timer, ESPN)
+routes/                — API routes (auth, games, draft, scores, import, test)
+services/              — Business logic (draft engine, import engine, scoring, timer, ESPN)
 public/                — Frontend (single-page app, no tab navigation)
   index.html           — Landing page + draft board + leaderboard (all one view)
   css/style.css        — Dark arena design system (~1500 lines)
