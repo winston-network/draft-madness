@@ -104,9 +104,12 @@ async function submitTiebreaker() {
 }
 
 // ─── Draft ───
+let loadDraftPending = false;
 async function loadDraft() {
+  if (loadDraftPending) return;
+  loadDraftPending = true;
   const session = API.getSession();
-  if (!session.gameCode) return;
+  if (!session.gameCode) { loadDraftPending = false; return; }
 
   try {
     const state = await API.getDraftState(session.gameCode);
@@ -143,6 +146,8 @@ async function loadDraft() {
     }
   } catch (e) {
     showToast(e.message);
+  } finally {
+    loadDraftPending = false;
   }
 }
 
@@ -685,7 +690,8 @@ async function testAutoPickAll() {
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.error || 'Simulate failed');
     showToast('Draft simulated!');
-    loadDraft();
+    await loadGameState();
+    await loadDraft();
   } catch (e) {
     showToast(e.message);
   }
